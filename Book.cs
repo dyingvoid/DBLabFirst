@@ -4,8 +4,7 @@ public class Book
 {
     private string? _name;
     private string? _author;
-    private int? _yearPublished;
-
+    
     public string? Name
     {
         get
@@ -30,22 +29,23 @@ public class Book
         }
     }
 
-    public int? YearPublished
-    {
-        get => _yearPublished;
-        set => _yearPublished = value;
-    }
-    public int? BookCase { get; set; }
+    public int? YearPublished { get; set; }
+    public uint? BookCase { get; set; }
     public uint? BookShelf { get; set; }
 
     public Book(List<string?> properties)
     {
-        SetIntegerValue(ref _yearPublished, properties[0]);
+        _name = properties[0];
+        _author = properties[1];
+        YearPublished = SetIntegerValue<int>(properties[2]);
+        BookCase = SetIntegerValue<uint>(properties[3]);
+        BookShelf = SetIntegerValue<uint>(properties[2]);
     }
 
-    public void SetIntegerValue<T>(ref T? property, string? value)
+    public T? SetIntegerValue<T>(string? value)
     where T : struct, IParsable<T>
     {
-        property = Extensions.SetNullIfValueEmptyOrWhiteSpace<T>(value);
+        T? property = Extensions.SetNullIfValueEmptyOrWhiteSpace<T>(value);
+        return property;
     }
 }

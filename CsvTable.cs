@@ -11,6 +11,14 @@ public class CsvTable
         _table = ReadFile(filePath);
     }
 
+    public CsvTable(FileInfo? fileInfo)
+    {
+        if (fileInfo == null)
+            throw new NullReferenceException("Found null at CsvTable constructor.");
+        
+        _table = ReadFile(fileInfo.Name);
+    }
+
     private List<List<string?>> ReadFile(string? filePath)
     {
         var tempCsvTable = File.ReadAllLines(filePath)
@@ -18,12 +26,12 @@ public class CsvTable
             .PureForEach<List<string>, string, List<List<string?>>, List<string?>>
                 (line => line.Split(',').ToList());
         
-        CheckCsvFileSize(tempCsvTable);
+        CheckCsvTableDimensionsEquality(tempCsvTable);
         
         return tempCsvTable;
     }
 
-    private void CheckCsvFileSize(List<List<string?>> table)
+    private void CheckCsvTableDimensionsEquality(List<List<string?>> table)
     {
         var size = table[0].Count;
         foreach (var list in table)
@@ -33,7 +41,7 @@ public class CsvTable
         }
     }
 
-    public void MakeNa()
+    public void MakeEmptyAndSpaceElementsNull()
     {
         for (var i = 0; i < _table.Count; ++i)
         {
@@ -45,7 +53,7 @@ public class CsvTable
         }
     }
 
-    public void FillNa(string value)
+    public void FillNullsWithValue(string value)
     {
         for (var i = 0; i < _table.Count; ++i)
         {

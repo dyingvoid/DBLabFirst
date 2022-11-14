@@ -4,11 +4,28 @@
     {
         static void Main()
         {
-            string? fileName = @"C:\Users\Administrator\Downloads\tableConvert.com_blj4hh.csv";
-            var csvFile = new CsvTable(fileName);
+            string directoryPath = @"C:\Users\Administrator\Downloads\csvs";
+            var directoryInfo = Directory.CreateDirectory(directoryPath);
+            var fileEnumerator = directoryInfo.EnumerateFiles("*.csv");
 
-            var list = new List<string?>() { "" };
-            var book = new Book(list);
+            var dbTables = new List<CsvTable>();
+            foreach (var csvFile in fileEnumerator)
+            {
+                CreateCsvTableAndAddToCollection(csvFile, dbTables);
+            }
+        }
+
+        private static void CreateCsvTableAndAddToCollection(FileInfo csvFile, List<CsvTable> dbTables)
+        {
+            try
+            {
+                var table = new CsvTable(csvFile);
+                dbTables.Add(table);
+            }
+            catch (NullReferenceException exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
         }
     }
 }
