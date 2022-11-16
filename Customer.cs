@@ -7,7 +7,7 @@ public class Customer
 
     public Customer(List<string?> properties)
     {
-        Name = Name.SetStringNullIfValueEmptyOrWhiteSpace(properties[0]);
+        //Name = Name.SetStringNullIfValueEmptyOrWhiteSpace(properties[0]);
         Id = SetIntegerValue<long>(properties[1]);
     }
 

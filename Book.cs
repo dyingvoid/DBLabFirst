@@ -35,11 +35,11 @@ public class Book
 
     public Book(List<string?> properties)
     {
-        _name = properties[0];
-        _author = properties[1];
+        _name.SetStringNullIfValueEmptyOrWhiteSpace(properties[0]);
+        _author.SetStringNullIfValueEmptyOrWhiteSpace(properties[1]);
         YearPublished = SetIntegerValue<int>(properties[2]);
         BookCase = SetIntegerValue<uint>(properties[3]);
-        BookShelf = SetIntegerValue<uint>(properties[2]);
+        BookShelf = SetIntegerValue<uint>(properties[4]);
     }
 
     public T? SetIntegerValue<T>(string? value)

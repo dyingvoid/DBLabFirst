@@ -27,21 +27,18 @@ public static class Extensions
     
     public static bool IsEmptyOrWhiteSpace(this string? value)
     {
-        if (value == "" || value == " ")
-            return true;
-        
-        return false;
+        return value is "" or " ";
     }
 
     public static T? SetNullIfValueEmptyOrWhiteSpace<T>(string? value)
     where T : struct, IParsable<T>
     {
-        if (value.IsEmptyOrWhiteSpace() || value == null)
+        if (T.TryParse(value, CultureInfo.InvariantCulture, out var returnVariable))
         {
-            return null;
+            return returnVariable;
         }
 
-        return T.Parse(value, CultureInfo.InvariantCulture);
+        return null;
     }
 
     public static string? SetStringNullIfValueEmptyOrWhiteSpace(this string? variable, string? value)

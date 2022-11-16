@@ -4,6 +4,11 @@
     {
         static void Main()
         {
+            Start();
+        }
+
+        public static void Start()
+        {
             string directoryPath = @"C:\Users\Administrator\Downloads\csvs";
             var directoryInfo = Directory.CreateDirectory(directoryPath);
             var fileEnumerator = directoryInfo.EnumerateFiles("*.csv");
@@ -12,6 +17,19 @@
             foreach (var csvFile in fileEnumerator)
             {
                 CreateCsvTableAndAddToCollection(csvFile, dbTables);
+            }
+            
+            TestBook(dbTables);
+        }
+
+        static void TestBook(List<CsvTable> dbTables)
+        {
+            var bookTable = dbTables[0];
+            var lBook = new List<Book>();
+
+            foreach (var dbBook in bookTable)
+            {
+                lBook.Add(new Book(dbBook));
             }
         }
 
