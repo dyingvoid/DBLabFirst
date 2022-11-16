@@ -7,34 +7,24 @@ public class CsvTable : IEnumerable<List<string?>>
 {
     private readonly List<List<string?>> _table;
 
-    public List<List<string?>> Table => _table;
-
-    public CsvTable(string? filePath)
-    {
-        _table = CreateTableFromFile(filePath);
-    }
-
     public CsvTable(FileInfo? fileInfo)
     {
-        if (fileInfo == null)
-            throw new NullReferenceException("Found null at CsvTable constructor.");
-
         try
         {
             _table = CreateTableFromFile(fileInfo.FullName);
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.Message + " Could not create CsvTable.");
             _table = new List<List<string?>>();
         }
     }
+    
+    public List<List<string?>> Table => _table;
 
     private List<List<string?>> CreateTableFromFile(string? filePath)
     {
-        
         var tempCsvTable = ReadFromFileToList(filePath);
-        
         CheckCsvTableDimensionsEquality(tempCsvTable);
         
         return tempCsvTable;
@@ -42,6 +32,9 @@ public class CsvTable : IEnumerable<List<string?>>
 
     private static List<List<string?>> ReadFromFileToList(string? filePath)
     {
+        if (!filePath.EndsWith(".csv"))
+            throw new Exception("Can't read non csv file.");
+        
         var tempCsvTable = File.ReadAllLines(filePath)
                 .ToList()
                 .PureForEach<List<string>, string, List<List<string?>>, List<string?>>
@@ -52,6 +45,11 @@ public class CsvTable : IEnumerable<List<string?>>
 
     private void CheckCsvTableDimensionsEquality(List<List<string?>> table)
     {
+        if (table.Count <= 0 || table[0].Count <= 0)
+        {
+            throw new Exception("CsvTable does not have dimensions. Must be at least (1, 1)");
+        }
+
         var size = table[0].Count;
         foreach (var list in table)
         {
