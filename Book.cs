@@ -7,40 +7,32 @@ public class Book
 
     public Book(List<string?> properties)
     {
-        _name.SetStringNullIfValueEmptyOrWhiteSpace(properties[0]);
-        _author.SetStringNullIfValueEmptyOrWhiteSpace(properties[1]);
+        Extensions.PrepareListOfProperties<Book>(ref properties);
+
+        _name = properties[0];
+        _author = properties[1];
         YearPublished = SetIntegerValue<int>(properties[2]);
         BookCase = SetIntegerValue<uint>(properties[3]);
         BookShelf = SetIntegerValue<uint>(properties[4]);
     }
-    
+
     public string? Name
     {
-        get
-        {
-            return _name;
-        }
-        set
-        {
-            _name.SetStringNullIfValueEmptyOrWhiteSpace(value);
-        }
+        get => _name;
+        set => _name = Extensions.SetStringNullIfValueEmptyOrWhiteSpace(value); 
     }
     
     public string? Author
     {
-        get
-        {
-            return _author;
-        }
-        set
-        {
-            _author.SetStringNullIfValueEmptyOrWhiteSpace(value);
-        }
+        get => _author;
+        set => _author = Extensions.SetStringNullIfValueEmptyOrWhiteSpace(value);
+        
     }
 
     public int? YearPublished { get; set; }
     public uint? BookCase { get; set; }
     public uint? BookShelf { get; set; }
+    
 
     public T? SetIntegerValue<T>(string? value)
     where T : struct, IParsable<T>
