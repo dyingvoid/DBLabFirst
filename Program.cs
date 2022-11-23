@@ -26,13 +26,13 @@
             Console.WriteLine("Success");
         }
 
-        public static List<TObj> InitializeObjects<TObj>(CsvTable table, Func<List<string?>, TObj> del)
+        public static List<TObj> InitializeObjects<TObj>(CsvTable table, Func<List<string?>, TObj> initializeDelegate)
         {
             var bookList = new List<TObj>();
             
             foreach (var stroke in table)
             {
-                bookList.Add(del(stroke));
+                bookList.Add(initializeDelegate(stroke));
             }
 
             return bookList;

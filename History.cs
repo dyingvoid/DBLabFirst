@@ -1,33 +1,34 @@
 ﻿using System.Globalization;
-using System.Net;
-using System.Runtime.InteropServices;
 
 namespace DBFirstLab;
 
 public class History
 {
-    public List<Customer?> Persons { get; set; }
-    public List<Book?> Books { get; set; }
-    public List<DateTime?> Times { get; set; }
-
-    // List = {Persons.Name, Persons.Id, Book.Name, DateTime}
+    // List = {Persons.Name, Persons.Id, Book.Name, DateTime, OperationType}
     public History(CsvTable table)
     {
         Persons = new List<Customer?>();
         Books = new List<Book?>();
         Times = new List<DateTime?>();
+        Types = new List<OperationType?>();
 
         foreach (var stroke in table)
         {
             AddObjects(stroke);
         }
     }
+    
+    public List<Customer?> Persons { get; set; }
+    public List<Book?> Books { get; set; }
+    public List<DateTime?> Times { get; set; }
+    public List<OperationType?> Types;
 
     public void AddObjects(List<string?> properties)
     {
         Persons.Add(new Customer(new List<string?>() { properties[0], properties[1] }));
         Books.Add(new Book(new List<string?>() { properties[2] }));
         AddTime(properties[3]);
+        AddOperationType(properties[4]);
     }
 
     private void AddTime(string? time)
@@ -43,39 +44,16 @@ public class History
         }
     }
 
-    public static bool CheckCustomerExistence(string customerName, int customerId, List<Customer> customers)
+    private void AddOperationType(string? value)
     {
-        if (customers == null)
-            throw new NullReferenceException();
-        
-        var customerSpecifiedId = FindCustomerUsingId(customers, customerId);
-        var customersSpecifiedName = FindCustomersUsingName(customers, customerName);
-
-        if (customerSpecifiedId == null || customersSpecifiedName == null)
+        if (value == null)
         {
-            return false;
+            Types.Add(null);
         }
-        
-        return customersSpecifiedName.Exists(customer => customer.Id == customerSpecifiedId.Id);
-    }
-
-    public static List<Customer>? FindCustomersUsingName(List<Customer> customers, string name)
-    {
-        if (customers == null)
-            throw new ArgumentNullException();
-
-        var foundCustomersList = customers.FindAll(customer => customer.Name == name);
-
-        return foundCustomersList;
-    }
-
-    public static Customer? FindCustomerUsingId(List<Customer> customers, int id)
-    {
-        if (customers == null) 
-            throw new ArgumentNullException();
-
-        var foundCustomer = customers.Find(customer => customer.Id == id);
-
-        return foundCustomer;
+        else
+        {
+            OperationType.TryParse(value, out OperationType type);
+            Types.Add(type);
+        }
     }
 }

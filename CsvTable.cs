@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Globalization;
 
 namespace DBFirstLab;
 
@@ -56,44 +55,6 @@ public class CsvTable : IEnumerable<List<string?>>
             if (list.Count != size)
                 throw new Exception("Difference in table's dimensions. All strokes must be the same size.");
         }
-    }
-
-    public void MakeEmptyAndSpaceElementsNull()
-    {
-        for (var i = 0; i < _table.Count; ++i)
-        {
-            for (var j = 0; j < _table[i].Count; ++j)
-            {
-                if(_table[i][j].IsEmptyOrWhiteSpace())
-                    _table[i][j] = null;
-            }
-        }
-    }
-
-    public void FillNullsWithValue(string value)
-    {
-        for (var i = 0; i < _table.Count; ++i)
-        {
-            for (var j = 0; j < _table[i].Count; ++j)
-            {
-                if(_table[i][j] == null)
-                    _table[i][j] = value;
-            }
-        }
-    }
-
-    public List<TValue> GetColumnGenericType<TValue>(string? columnName)
-    where TValue : IParsable<TValue>
-    {
-        int columnNameInt = _table[0].FindIndex(str => str == columnName);
-        
-        if (columnNameInt == -1)
-            throw new ArgumentException("Column was not found.");
-        
-        List<TValue> outList = _table[columnNameInt]
-            .Select(str => TValue.Parse(str, CultureInfo.InvariantCulture)).ToList();
-
-        return outList;
     }
 
     IEnumerator IEnumerable.GetEnumerator()
