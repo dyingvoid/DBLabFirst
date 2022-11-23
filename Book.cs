@@ -7,7 +7,7 @@ public class Book
 
     public Book(List<string?> properties)
     {
-        Extensions.PrepareListOfProperties<Book>(ref properties);
+        Controller.PrepareListOfProperties<Book>(ref properties);
 
         Name = properties[0];
         Author = properties[1];
@@ -19,13 +19,13 @@ public class Book
     public string? Name
     {
         get => _name;
-        set => _name = Extensions.SetStringNullIfValueEmptyOrWhiteSpace(value); 
+        set => _name = Controller.SetStringNullIfValueEmptyOrWhiteSpace(value); 
     }
     
     public string? Author
     {
         get => _author;
-        set => _author = Extensions.SetStringNullIfValueEmptyOrWhiteSpace(value);
+        set => _author = Controller.SetStringNullIfValueEmptyOrWhiteSpace(value);
     }
 
     public int? YearPublished { get; set; }
@@ -36,7 +36,7 @@ public class Book
     public T? SetIntegerValue<T>(string? value)
     where T : struct, IParsable<T>
     {
-        T? property = Extensions.SetNullIfValueEmptyOrWhiteSpace<T>(value);
+        T? property = Controller.SetNullIfValueEmptyOrWhiteSpace<T>(value);
         return property;
     }
 }

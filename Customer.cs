@@ -5,7 +5,7 @@ public class Customer
     private string? _name;
     public Customer(List<string?> properties)
     {
-        Extensions.PrepareListOfProperties<Customer>(ref properties);
+        Controller.PrepareListOfProperties<Customer>(ref properties);
 
         Name = properties[0];
         Id = SetIntegerValue<long>(properties[1]);
@@ -14,7 +14,7 @@ public class Customer
     public string? Name
     {
         get => _name;
-        set => _name = Extensions.SetStringNullIfValueEmptyOrWhiteSpace(value); 
+        set => _name = Controller.SetStringNullIfValueEmptyOrWhiteSpace(value); 
     }
 
     public long? Id { get; set; }
@@ -22,7 +22,7 @@ public class Customer
     public T? SetIntegerValue<T>(string? value)
     where T : struct, IParsable<T>
     {
-        T? property = Extensions.SetNullIfValueEmptyOrWhiteSpace<T>(value);
+        T? property = Controller.SetNullIfValueEmptyOrWhiteSpace<T>(value);
         return property;
     }
 }

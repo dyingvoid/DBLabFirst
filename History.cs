@@ -32,7 +32,7 @@ public class History
 
     private void AddTime(string? time)
     {
-        time = Extensions.SetStringNullIfValueEmptyOrWhiteSpace(time);
+        time = Controller.SetStringNullIfValueEmptyOrWhiteSpace(time);
         if (time == null)
         {
             Times.Add(null);
