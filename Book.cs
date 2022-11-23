@@ -19,13 +19,13 @@ public class Book
     public string? Name
     {
         get => _name;
-        set => _name = Controller.SetStringNullIfValueEmptyOrWhiteSpace(value); 
+        set => _name = Controller.MakeNullIfEmptyOrSpace(value); 
     }
     
     public string? Author
     {
         get => _author;
-        set => _author = Controller.SetStringNullIfValueEmptyOrWhiteSpace(value);
+        set => _author = Controller.MakeNullIfEmptyOrSpace(value);
     }
 
     public int? YearPublished { get; set; }

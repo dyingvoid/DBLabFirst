@@ -15,13 +15,18 @@ public class Controller
         return null;
     }
 
-    public static string? SetStringNullIfValueEmptyOrWhiteSpace(string? value)
+    public static string? MakeNullIfEmptyOrSpace(string? value)
     {
-        if (value.IsEmptyOrWhiteSpace() || value == null)
+        return MakeNullIfPredicate(value, str => str.IsEmptyWhiteSpaceNull());
+    }
+
+    public static string? MakeNullIfPredicate(string? value, Func<string?, bool> predicate)
+    {
+        if (predicate(value))
         {
             return null;
         }
-        
+
         return value;
     }
     

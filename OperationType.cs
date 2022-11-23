@@ -1,6 +1,6 @@
 ﻿namespace DBFirstLab;
 
-enum OperationType
+public enum OperationType
 {
     Borrow,
     Return

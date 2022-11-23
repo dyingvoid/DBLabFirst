@@ -25,9 +25,9 @@ public static class Extensions
         return newCollection;
     }
     
-    public static bool IsEmptyOrWhiteSpace(this string? value)
+    public static bool IsEmptyWhiteSpaceNull(this string? value)
     {
-        return value is "" or " ";
+        return value is "" or " " or null;
     }
 
     public static void EnlargeListWithNulls(this List<string?> list, int onSize)

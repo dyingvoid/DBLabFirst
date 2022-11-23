@@ -14,7 +14,7 @@ public class Customer
     public string? Name
     {
         get => _name;
-        set => _name = Controller.SetStringNullIfValueEmptyOrWhiteSpace(value); 
+        set => _name = Controller.MakeNullIfEmptyOrSpace(value); 
     }
 
     public long? Id { get; set; }

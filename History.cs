@@ -33,7 +33,7 @@ public class History
 
     private void AddTime(string? time)
     {
-        time = Controller.SetStringNullIfValueEmptyOrWhiteSpace(time);
+        time = Controller.MakeNullIfEmptyOrSpace(time);
         if (time == null)
         {
             Times.Add(null);
@@ -46,6 +46,8 @@ public class History
 
     private void AddOperationType(string? value)
     {
+        value = Controller.MakeNullIfEmptyOrSpace(value);
+        
         if (value == null)
         {
             Types.Add(null);
