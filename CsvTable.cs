@@ -103,7 +103,6 @@ public class CsvTable : IEnumerable<List<string?>>
     public IEnumerator<List<string?>> GetEnumerator()
     {
         var enumerator = _table.GetEnumerator();
-        enumerator.MoveNext();
         return enumerator;
     }
 }

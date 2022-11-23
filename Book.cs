@@ -9,8 +9,8 @@ public class Book
     {
         Extensions.PrepareListOfProperties<Book>(ref properties);
 
-        _name = properties[0];
-        _author = properties[1];
+        Name = properties[0];
+        Author = properties[1];
         YearPublished = SetIntegerValue<int>(properties[2]);
         BookCase = SetIntegerValue<uint>(properties[3]);
         BookShelf = SetIntegerValue<uint>(properties[4]);
@@ -26,7 +26,6 @@ public class Book
     {
         get => _author;
         set => _author = Extensions.SetStringNullIfValueEmptyOrWhiteSpace(value);
-        
     }
 
     public int? YearPublished { get; set; }

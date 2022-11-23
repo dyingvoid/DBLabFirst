@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Net;
 using System.Runtime.InteropServices;
 
 namespace DBFirstLab;
@@ -10,26 +11,35 @@ public class History
     public List<DateTime?> Times { get; set; }
 
     // List = {Persons.Name, Persons.Id, Book.Name, DateTime}
-    public History(List<string?> properties)
+    public History(CsvTable table)
     {
         Persons = new List<Customer?>();
         Books = new List<Book?>();
         Times = new List<DateTime?>();
 
-        Persons.Add(new Customer(new List<string?>() { properties[0], properties[1] }));
-        Books.Add(new Book(new List<string?>() { properties[2] }));
-        AddTime(properties);
+        foreach (var stroke in table)
+        {
+            AddObjects(stroke);
+        }
     }
 
-    private void AddTime(List<string?> properties)
+    public void AddObjects(List<string?> properties)
     {
-        if (properties[3] == null)
+        Persons.Add(new Customer(new List<string?>() { properties[0], properties[1] }));
+        Books.Add(new Book(new List<string?>() { properties[2] }));
+        AddTime(properties[3]);
+    }
+
+    private void AddTime(string? time)
+    {
+        time = Extensions.SetStringNullIfValueEmptyOrWhiteSpace(time);
+        if (time == null)
         {
             Times.Add(null);
         }
         else
         {
-            Times.Add(DateTime.ParseExact(properties[3], "yyyy:MM:dd", CultureInfo.InvariantCulture));
+            Times.Add(DateTime.ParseExact(time, "yyyy:MM:dd", CultureInfo.InvariantCulture));
         }
     }
 

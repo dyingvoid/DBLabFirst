@@ -4,7 +4,7 @@
     {
         static void Main()
         {
-            // Start();
+            Start();
         }
 
         public static void Start()
@@ -18,46 +18,24 @@
             {
                 CreateCsvTableAndAddToCollection(csvFile, dbTables); 
             }
-            TestCsvTable(dbTables);
-        }
 
-        static void TestBook(List<CsvTable> dbTables)
-        {
-            var bookTable = dbTables[0];
-            var lBook = new List<Book>();
-
-            foreach (var dbBook in bookTable)
-            {
-                lBook.Add(new Book(dbBook));
-            }
-        }
-
-        static void TestCustomer(List<CsvTable> dbTables)
-        {
-            var customerTable = dbTables[1];
-            var lCustomer = new List<Customer>();
-
-            foreach (var dbCustomer in customerTable)
-            {
-                lCustomer.Add(new Customer(dbCustomer));
-            }
-        }
-
-        static void TestCsvTable(List<CsvTable> dbTables)
-        {
-            //test for null, empty file, empty table, wrong-sized table,
-            //large table, table with first stroke as column names and without it
+            var bookList = InitializeObjects<Book>(dbTables[0], list => new Book(list));
+            var history = new History(dbTables[1]);
+            var customerList = InitializeObjects<Customer>(dbTables[2], list => new Customer(list));
             
-            var csvs = new List<CsvTable>();
-            
-            csvs.Add(dbTables[1]);
-            csvs.Add(new CsvTable(new FileInfo(@"C:\Users\Administrator\Downloads\csvs\test.txt")));
+            Console.WriteLine("Success");
         }
 
-        static void TestHistory()
+        public static List<TObj> InitializeObjects<TObj>(CsvTable table, Func<List<string?>, TObj> del)
         {
-            // Test History construction and comparison History with existence of customer and book
-            // in customer and book tables respectively
+            var bookList = new List<TObj>();
+            
+            foreach (var stroke in table)
+            {
+                bookList.Add(del(stroke));
+            }
+
+            return bookList;
         }
 
         private static void CreateCsvTableAndAddToCollection(FileInfo csvFile, List<CsvTable> dbTables)

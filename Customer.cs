@@ -3,7 +3,6 @@
 public class Customer
 {
     private string? _name;
-    private long? _id;
     public Customer(List<string?> properties)
     {
         Extensions.PrepareListOfProperties<Customer>(ref properties);
@@ -18,7 +17,7 @@ public class Customer
         set => _name = Extensions.SetStringNullIfValueEmptyOrWhiteSpace(value); 
     }
 
-    public long? Id { get; private set; }
+    public long? Id { get; set; }
 
     public T? SetIntegerValue<T>(string? value)
     where T : struct, IParsable<T>
