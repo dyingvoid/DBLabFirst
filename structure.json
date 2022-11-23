@@ -1,0 +1,21 @@
+{
+    "BookTable" : {
+        "Name" : "string",
+        "AuthorName" : "string",
+        "YearPublished" : "int",
+        "BookCase" : "uint",
+        "BookShelf" : "uint"
+    }
+    ,
+    "ConsumerTable" : {
+        "Name" : "string",
+        "Id" : "long"
+    },
+    "HistoryTable" : {
+        "PersonName" : "string",
+        "BookName" : "string",
+        "Time" : "DateTime",
+        "Type" : "string"
+    }
+    
+}
