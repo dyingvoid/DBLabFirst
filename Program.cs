@@ -7,9 +7,9 @@ namespace DBFirstLab
         static void Main()
         {
             // Start();
-            FileInfo file = new FileInfo(@"C:\Users\Administrator\RiderProjects\DBFirstLab\structure.json");
-            
-            Controller.ParseJsonToTypes(file);
+            FileInfo file = new FileInfo(@"C:\Users\Wlad\RiderProjects\DBLabFirst\structure.json");
+
+            var dict = Controller.ParseJson(file);
         }
 
         public static void Start()

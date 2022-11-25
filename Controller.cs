@@ -52,13 +52,12 @@ public class Controller
         }
     }
 
-    public static void ParseJsonToTypes(FileInfo file)
+    public static Dictionary<string, Dictionary<string, string>>? ParseJson(FileInfo file)
     {
-        var outputList = new List<object>();
-        using (StreamReader stream = new StreamReader(file.FullName))
-        {
-            string json = stream.ReadToEnd();
-            var list = JsonSerializer.Deserialize<object>(json);
-        }
+        using StreamReader stream = new StreamReader(file.FullName);
+        string json = stream.ReadToEnd();
+        var jsonDict = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(json);
+
+        return jsonDict;
     }
 }
