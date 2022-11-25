@@ -1,8 +1,5 @@
 ﻿using System.Collections;
-using System.Data.SqlTypes;
 using System.Globalization;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace DBFirstLab;
 
@@ -27,7 +24,10 @@ public class CsvTable : IEnumerable<List<string?>>
     }
     
     public List<List<string?>> Table => _table;
+    
     public Tuple<long, long> Shape { get; set; }
+    public object this[int index] => GetColumnWithIndex(Table, index);
+    public Dictionary<string, Type> Types;
 
     private List<List<string?>> CreateTableFromFile(string? filePath)
     {
@@ -51,6 +51,17 @@ public class CsvTable : IEnumerable<List<string?>>
         
         return tempCsvTable;
     }
+
+    // Don't Forget to change for non static private dict<string, Type>
+    public static void SetColumnTypes(Dictionary<string, string> types)
+    {
+        foreach (var (key, value) in types)
+        {
+            var type = Type.GetType(value);
+            if(type != null)
+                Console.WriteLine(key + " " + type.ToString());
+        }
+    } 
 
     private void GoThroughTests()
     {
@@ -90,12 +101,7 @@ public class CsvTable : IEnumerable<List<string?>>
     private void CheckColumnDataTypeEquality<TData>(List<string?> column)
     where TData : struct, IParsable<TData>
     {
-        var checkList = new List<TData?>();
         
-        foreach (var element in column)
-        {
-            TryAddElement(element, checkList);
-        }
     }
 
     private static void TryAddElement<TData>(string? element, List<TData?> checkList) 

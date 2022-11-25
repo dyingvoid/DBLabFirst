@@ -10,6 +10,9 @@ namespace DBFirstLab
             FileInfo file = new FileInfo(@"C:\Users\Wlad\RiderProjects\DBLabFirst\structure.json");
 
             var dict = Controller.ParseJson(file);
+
+            CsvTable.SetColumnTypes(dict["ConsumerTable"]);
+            Console.WriteLine(typeof(long));
         }
 
         public static void Start()

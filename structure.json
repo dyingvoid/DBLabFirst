@@ -1,21 +1,21 @@
 {
     "BookTable" : {
-        "Name" : "string",
-        "AuthorName" : "string",
-        "YearPublished" : "int",
-        "BookCase" : "uint",
-        "BookShelf" : "uint"
+        "Name" : "System.String",
+        "AuthorName" : "System.String",
+        "YearPublished" : "System.Int32",
+        "BookCase" : "System.UInt32",
+        "BookShelf" : "System.UInt32"
     }
     ,
     "ConsumerTable" : {
-        "Name" : "string",
-        "Id" : "long"
+        "Name" : "System.String",
+        "Id" : "System.Int64"
     },
     "HistoryTable" : {
-        "PersonName" : "string",
-        "BookName" : "string",
+        "PersonName" : "System.String",
+        "BookName" : "System.String",
         "Time" : "DateTime",
-        "Type" : "string"
+        "Type" : "System.String"
     }
     
 }
