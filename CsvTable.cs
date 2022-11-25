@@ -11,6 +11,7 @@ public class CsvTable : IEnumerable<List<string?>>
 
     public CsvTable(FileInfo? csvFile, Dictionary<string, string> configuration)
     {
+        Types = new Dictionary<string, Type>();
         try
         {
             _table = CreateTableFromFile(csvFile.FullName);
@@ -23,7 +24,7 @@ public class CsvTable : IEnumerable<List<string?>>
             _table = new List<List<string?>>();
         }
         
-        SetShape();
+        // SetShape();
     }
     
     public List<List<string?>> Table => _table;
@@ -67,6 +68,7 @@ public class CsvTable : IEnumerable<List<string?>>
     private void GoThroughTests()
     {
         CheckTableDimensionsEquality(_table);
+        CheckColumnsDataTypeEquality(Table, Types);
     }
 
     private void CheckTableDimensionsEquality(List<List<string?>> table)
@@ -100,10 +102,13 @@ public class CsvTable : IEnumerable<List<string?>>
 
                 foreach (var element in table[i])
                 {
-                    var methodInfo = typeof(Extensions).GetMethod("ToType",
-                        BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(type);
+                    if (type != typeof(System.String))
+                    {
+                        var methodInfo = typeof(Extensions).GetMethod("ToType",
+                            BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(type);
 
-                    var elem = methodInfo.Invoke(null, new object[]{element});
+                        var elem = methodInfo.Invoke(null, new object[] { element });
+                    }
 
                 }
 
