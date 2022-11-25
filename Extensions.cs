@@ -24,6 +24,11 @@ public static class Extensions
 
         return newCollection;
     }
+
+    public static T ToType<T>(this string? item) where T : IParsable<T>
+    {
+        return T.Parse(item, CultureInfo.InvariantCulture);
+    }
     
     public static bool IsEmptyOrWhiteSpace(this string? value)
     {

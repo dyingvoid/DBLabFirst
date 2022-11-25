@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Globalization;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace DBFirstLab;
 
@@ -7,11 +9,12 @@ public class CsvTable : IEnumerable<List<string?>>
 {
     private readonly List<List<string?>> _table;
 
-    public CsvTable(FileInfo? fileInfo)
+    public CsvTable(FileInfo? csvFile, Dictionary<string, string> configuration)
     {
         try
         {
-            _table = CreateTableFromFile(fileInfo.FullName);
+            _table = CreateTableFromFile(csvFile.FullName);
+            SetColumnTypes(configuration);
             GoThroughTests();
         }
         catch (Exception ex)
@@ -27,7 +30,7 @@ public class CsvTable : IEnumerable<List<string?>>
     
     public Tuple<long, long> Shape { get; set; }
     public object this[int index] => GetColumnWithIndex(Table, index);
-    public Dictionary<string, Type> Types;
+    public Dictionary<string, Type> Types { get; }
 
     private List<List<string?>> CreateTableFromFile(string? filePath)
     {
@@ -51,15 +54,13 @@ public class CsvTable : IEnumerable<List<string?>>
         
         return tempCsvTable;
     }
-
-    // Don't Forget to change for non static private dict<string, Type>
-    public static void SetColumnTypes(Dictionary<string, string> types)
+    
+    private void SetColumnTypes(Dictionary<string, string> types)
     {
         foreach (var (key, value) in types)
         {
             var type = Type.GetType(value);
-            if(type != null)
-                Console.WriteLine(key + " " + type.ToString());
+            Types.Add(key, type);
         }
     } 
 
@@ -85,13 +86,26 @@ public class CsvTable : IEnumerable<List<string?>>
         }
     }
 
-    private void CheckColumnsDataTypeEquality(List<List<string?>> table)
+    private void CheckColumnsDataTypeEquality(List<List<string?>> table, Dictionary<string, Type> structure)
     {
         if (table.Count > 0)
         {
             for (var i = 0; i < table[0].Count; ++i)
             {
                 var column = GetColumnWithIndex(table, i);
+                var name = column[0];
+                // Maybe it is worth to catch null reference and throw more meaningful exception
+                var type = structure[name];
+                column.RemoveAt(0);
+
+                foreach (var element in table[i])
+                {
+                    var methodInfo = typeof(Extensions).GetMethod("ToType",
+                        BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(type);
+
+                    var elem = methodInfo.Invoke(null, new object[]{element});
+
+                }
 
                 // CheckColumnDataTypeEquality(column);
             }
