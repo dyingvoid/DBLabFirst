@@ -1,10 +1,15 @@
-﻿namespace DBFirstLab
+﻿using System.Globalization;
+
+namespace DBFirstLab
 {
     class Program
     {
         static void Main()
         {
-            Start();
+            // Start();
+            FileInfo file = new FileInfo(@"C:\Users\Administrator\RiderProjects\DBFirstLab\structure.json");
+            
+            Controller.ParseJsonToTypes(file);
         }
 
         public static void Start()

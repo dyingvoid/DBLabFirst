@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text.Json;
 
 namespace DBFirstLab;
 
@@ -48,6 +49,16 @@ public class Controller
                               $"{objType.FullName} List of properties will be List[{requiredListSize}] of nulls.");
             
             properties = new List<string?>(new string?[requiredListSize]);
+        }
+    }
+
+    public static void ParseJsonToTypes(FileInfo file)
+    {
+        var outputList = new List<object>();
+        using (StreamReader stream = new StreamReader(file.FullName))
+        {
+            string json = stream.ReadToEnd();
+            var list = JsonSerializer.Deserialize<object>(json);
         }
     }
 }

@@ -1,5 +1,8 @@
 ﻿using System.Collections;
+using System.Data.SqlTypes;
 using System.Globalization;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace DBFirstLab;
 
@@ -12,22 +15,28 @@ public class CsvTable : IEnumerable<List<string?>>
         try
         {
             _table = CreateTableFromFile(fileInfo.FullName);
+            GoThroughTests();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message + " Could not create CsvTable.");
             _table = new List<List<string?>>();
         }
+        
+        SetShape();
     }
     
     public List<List<string?>> Table => _table;
+    public Tuple<long, long> Shape { get; set; }
 
     private List<List<string?>> CreateTableFromFile(string? filePath)
     {
-        var tempCsvTable = ReadFromFileToList(filePath);
-        CheckCsvTableDimensionsEquality(tempCsvTable);
-        
-        return tempCsvTable;
+        return ReadFromFileToList(filePath);
+    }
+    
+    public void SetShape()
+    {
+        Shape = Tuple.Create<long, long>(Table.Count, Table[0].Count);
     }
 
     private static List<List<string?>> ReadFromFileToList(string? filePath)
@@ -43,19 +52,71 @@ public class CsvTable : IEnumerable<List<string?>>
         return tempCsvTable;
     }
 
-    private void CheckCsvTableDimensionsEquality(List<List<string?>> table)
+    private void GoThroughTests()
     {
-        if (table.Count <= 0 || table[0].Count <= 0)
+        CheckTableDimensionsEquality(_table);
+    }
+
+    private void CheckTableDimensionsEquality(List<List<string?>> table)
+    {
+        var size = table.Count;
+
+        if (size > 0)
         {
-            throw new Exception("CsvTable does not have dimensions. Must be at least (1, 1)");
+            var sizeOfStroke = table[0].Count;
+            
+            for (var i = 0; i < size; ++i)
+            {
+                if (table[i].Count != sizeOfStroke)
+                    throw new Exception($"Table dimensions are not equal." +
+                                        $"{i} stroke of size {table[i].Count}, when first is {sizeOfStroke}");
+            }
+        }
+    }
+
+    private void CheckColumnsDataTypeEquality(List<List<string?>> table)
+    {
+        if (table.Count > 0)
+        {
+            for (var i = 0; i < table[0].Count; ++i)
+            {
+                var column = GetColumnWithIndex(table, i);
+
+                // CheckColumnDataTypeEquality(column);
+            }
+        }
+    }
+
+    private void CheckColumnDataTypeEquality<TData>(List<string?> column)
+    where TData : struct, IParsable<TData>
+    {
+        var checkList = new List<TData?>();
+        
+        foreach (var element in column)
+        {
+            TryAddElement(element, checkList);
+        }
+    }
+
+    private static void TryAddElement<TData>(string? element, List<TData?> checkList) 
+        where TData : struct, IParsable<TData>
+    {
+        if (element == null)
+            checkList.Add(null);
+        else
+            checkList.Add(TData.Parse(element, CultureInfo.InvariantCulture));
+    }
+
+    public List<string?> GetColumnWithIndex(List<List<string?>> table, int index)
+    {
+        var column = new List<string?>();
+
+        foreach (var stroke in table)
+        {
+            column.Add(stroke[index]);
         }
 
-        var size = table[0].Count;
-        foreach (var list in table)
-        {
-            if (list.Count != size)
-                throw new Exception("Difference in table's dimensions. All strokes must be the same size.");
-        }
+        return column;
     }
 
     public void MakeEmptyAndSpaceElementsNull()
@@ -100,6 +161,7 @@ public class CsvTable : IEnumerable<List<string?>>
     {
         return GetEnumerator();
     }
+    
     public IEnumerator<List<string?>> GetEnumerator()
     {
         var enumerator = _table.GetEnumerator();
