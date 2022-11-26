@@ -10,6 +10,12 @@ namespace DBFirstLab
             // Test();
         }
 
+        public static void Test()
+        {
+            string time = "2/16/2008 12:15:12 PM";
+            var newtime = time.ToType<DateTime>();
+        }
+
         public static void Start()
         {
             string directoryPath = @"C:\Users\Administrator\Downloads\csvs";
@@ -52,16 +58,16 @@ namespace DBFirstLab
             return null;
         }
         
-        public static List<TObj> InitializeObjects<TObj>(CsvTable table, Func<List<string?>, TObj> del)
+        public static List<TObj> InitializeObjects<TObj>(CsvTable table, Func<List<string?>, TObj> constructorDelegate)
         {
-            var bookList = new List<TObj>();
+            var objectList = new List<TObj>();
             
             foreach (var stroke in table)
             {
-                bookList.Add(del(stroke));
+                objectList.Add(constructorDelegate(stroke));
             }
 
-            return bookList;
+            return objectList;
         }
 
         private static void CreateCsvTableAndAddToCollection(FileInfo csvFile, 

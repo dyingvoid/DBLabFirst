@@ -9,6 +9,7 @@ public class History
     public List<Customer?> Persons { get; set; }
     public List<Book?> Books { get; set; }
     public List<DateTime?> Times { get; set; }
+    public List<EnumOperation?> Operations { get; set; }
 
     // List = {Persons.Name, Persons.Id, Book.Name, DateTime}
     public History(CsvTable table)
@@ -16,18 +17,40 @@ public class History
         Persons = new List<Customer?>();
         Books = new List<Book?>();
         Times = new List<DateTime?>();
+        Operations = new List<EnumOperation?>();
 
         foreach (var stroke in table)
         {
-            AddObjects(stroke);
+            try
+            {
+                AddObjects(stroke);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Source} {ex.Message}, could not create instance of History class.");
+            }
         }
     }
 
     public void AddObjects(List<string?> properties)
     {
-        Persons.Add(new Customer(new List<string?>() { properties[0], properties[1] }));
-        Books.Add(new Book(new List<string?>() { properties[2] }));
-        AddTime(properties[3]);
+        Persons.Add(new Customer(new List<string?>() { properties[0]}));
+        Books.Add(new Book(new List<string?>() { properties[1] }));
+        AddTime(properties[2]);
+        AddOperation(properties[3]);
+    }
+
+    private void AddOperation(string? operation)
+    {
+        operation = Controller.SetStringNullIfValueEmptyOrWhiteSpace(operation);
+        if (operation == null)
+        {
+            Operations.Add(null);
+        }
+        else
+        {
+            Operations.Add(Enum.Parse<EnumOperation>(operation));
+        }
     }
 
     private void AddTime(string? time)
@@ -39,7 +62,7 @@ public class History
         }
         else
         {
-            Times.Add(DateTime.ParseExact(time, "yyyy:MM:dd", CultureInfo.InvariantCulture));
+            Times.Add(DateTime.Parse(time));
         }
     }
 

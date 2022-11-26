@@ -11,12 +11,15 @@ public class CsvTable : IEnumerable<List<string?>>
     public CsvTable(FileInfo? csvFile, Dictionary<string, string> configuration)
     {
         Types = new Dictionary<string, Type>();
+        Columns = new List<string>();
         try
         {
             _table = CreateTableFromFile(csvFile.FullName);
             SetColumnTypes(configuration);
             MakeEmptyAndSpaceElementsNull();
             GoThroughTests();
+            // It would not work for empty table
+            Table.RemoveAt(0);
         }
         catch (Exception ex)
         {
@@ -32,6 +35,7 @@ public class CsvTable : IEnumerable<List<string?>>
     public Tuple<long, long> Shape { get; set; }
     public object this[int index] => GetColumnWithIndex(Table, index);
     public Dictionary<string, Type> Types { get; }
+    public List<string> Columns { get; }
 
     private List<List<string?>> CreateTableFromFile(string? filePath)
     {
