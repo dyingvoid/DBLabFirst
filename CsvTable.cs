@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Globalization;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace DBFirstLab;
@@ -16,11 +15,12 @@ public class CsvTable : IEnumerable<List<string?>>
         {
             _table = CreateTableFromFile(csvFile.FullName);
             SetColumnTypes(configuration);
+            MakeEmptyAndSpaceElementsNull();
             GoThroughTests();
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message + " Could not create CsvTable.");
+            Console.WriteLine(ex.Message + $" Could not create CsvTable with {csvFile.Name}.");
             _table = new List<List<string?>>();
         }
         
@@ -83,7 +83,7 @@ public class CsvTable : IEnumerable<List<string?>>
             {
                 if (table[i].Count != sizeOfStroke)
                     throw new Exception($"Table dimensions are not equal." +
-                                        $"{i} stroke of size {table[i].Count}, when first is {sizeOfStroke}");
+                                        $" {i} stroke of size {table[i].Count}, when first is {sizeOfStroke}");
             }
         }
     }
@@ -92,35 +92,72 @@ public class CsvTable : IEnumerable<List<string?>>
     {
         if (table.Count > 0)
         {
+            // Foreach column
             for (var i = 0; i < table[0].Count; ++i)
             {
                 var column = GetColumnWithIndex(table, i);
                 var name = column[0];
-                // Maybe it is worth to catch null reference and throw more meaningful exception
-                var type = structure[name];
+                var type = FindTypeInJsonByColumnName(structure, name);
                 column.RemoveAt(0);
 
-                foreach (var element in table[i])
-                {
-                    if (type != typeof(System.String))
-                    {
-                        var methodInfo = typeof(Extensions).GetMethod("ToType",
-                            BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(type);
-
-                        var elem = methodInfo.Invoke(null, new object[] { element });
-                    }
-
-                }
-
-                // CheckColumnDataTypeEquality(column);
+                CheckColumnDataTypeEquality(column, type);
             }
         }
     }
 
-    private void CheckColumnDataTypeEquality<TData>(List<string?> column)
-    where TData : struct, IParsable<TData>
+    private static Type FindTypeInJsonByColumnName(Dictionary<string, Type> structure, string? name)
     {
-        
+        try
+        {
+            var type = structure[name];
+            return type;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Could not find {name} column in json structure.");
+            throw ex;
+        }
+    }
+
+    private static void CheckColumnDataTypeEquality(List<string?> column, Type type)
+    {
+        foreach (var element in column)
+        {
+            if (type != typeof(System.String))
+            {
+                var castGenericMethod = TryMakeGenericWithType(type);
+                TryCastToType(type, castGenericMethod, element);
+            }
+        }
+    }
+
+    private static void TryCastToType(Type type, MethodInfo castGenericMethod, string? element)
+    {
+        try
+        {
+            var elem = castGenericMethod.Invoke(null, new object[] { element });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Element '{element}' can't be casted to type {type}.");
+            throw ex;
+        }
+    }
+
+    private static MethodInfo TryMakeGenericWithType(Type type)
+    {
+        try
+        {
+            var methodInfo = typeof(Extensions).GetMethod("ToType",
+                BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(type);
+            
+            return methodInfo;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"{type} type caused error.");
+            throw ex;
+        }
     }
 
     private static void TryAddElement<TData>(string? element, List<TData?> checkList) 

@@ -3,8 +3,8 @@
         "Name" : "System.String",
         "AuthorName" : "System.String",
         "YearPublished" : "System.Int32",
-        "BookCase" : "System.UInt32",
-        "BookShelf" : "System.UInt32"
+        "Bookcase" : "System.UInt32",
+        "Bookshelf" : "System.UInt32"
     }
     ,
     "ConsumerTable" : {
@@ -14,7 +14,7 @@
     "HistoryTable" : {
         "PersonName" : "System.String",
         "BookName" : "System.String",
-        "Time" : "DateTime",
+        "Time" : "System.DateTime",
         "Type" : "System.String"
     }
     
