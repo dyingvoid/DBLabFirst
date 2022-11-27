@@ -25,11 +25,35 @@ public static class Extensions
         return newCollection;
     }
 
-    public static T ToType<T>(this string? item) where T : IParsable<T>
+    public static T? ToTypeWithStructConstraint<T>(this string? item) where T : struct, IParsable<T>
     {
+        if (item == null)
+        {
+            return null;
+        }
         return T.Parse(item, CultureInfo.InvariantCulture);
     }
-    
+
+    public static TEnum? ToTypeEnumConstraints<TEnum>(this string? item) where TEnum : struct
+    {
+        if (item == null)
+        {
+            return null;
+        }
+
+        return (TEnum)Enum.Parse(typeof(TEnum), item);
+    } 
+
+    public static T? ToTypeWithClassConstraint<T>(this string? item) where T : class, IParsable<T>
+    {
+        if (item == null)
+        {
+            return null;
+        }
+
+        return T.Parse(item, CultureInfo.InvariantCulture);
+    }
+
     public static bool IsEmptyOrWhiteSpace(this string? value)
     {
         return value is "" or " ";

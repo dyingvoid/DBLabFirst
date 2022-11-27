@@ -13,7 +13,7 @@ namespace DBFirstLab
         public static void Test()
         {
             string time = "2/16/2008 12:15:12 PM";
-            var newtime = time.ToType<DateTime>();
+            var newtime = time.ToTypeWithStructConstraint<DateTime>();
         }
 
         public static void Start()
@@ -34,9 +34,9 @@ namespace DBFirstLab
                     CreateCsvTableAndAddToCollection(csvFile, dbTables, config); 
             }
 
-            var bookList = InitializeObjects<Book>(dbTables[0], list => new Book(list));
-            var history = new History(dbTables[1]);
-            var customerList = InitializeObjects<Customer>(dbTables[2], list => new Customer(list));
+            //var bookList = InitializeObjects<Book>(dbTables[0], list => new Book(list));
+            //var history = new History(dbTables[1]);
+            //var customerList = InitializeObjects<Customer>(dbTables[2], list => new Customer(list));
             
             Console.WriteLine("Success");
         }

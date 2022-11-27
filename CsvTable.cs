@@ -16,10 +16,11 @@ public class CsvTable : IEnumerable<List<string?>>
         {
             _table = CreateTableFromFile(csvFile.FullName);
             SetColumnTypes(configuration);
-            MakeEmptyAndSpaceElementsNull();
-            GoThroughTests();
-            // It would not work for empty table
+            SetColumns();
             Table.RemoveAt(0);
+            MakeEmptyAndSpaceElementsNull();
+            
+            GoThroughTests();
         }
         catch (Exception ex)
         {
@@ -35,7 +36,20 @@ public class CsvTable : IEnumerable<List<string?>>
     public Tuple<long, long> Shape { get; set; }
     public object this[int index] => GetColumnWithIndex(Table, index);
     public Dictionary<string, Type> Types { get; }
-    public List<string> Columns { get; }
+    public List<string> Columns { get; set; }
+
+    private void SetColumns()
+    {
+        try
+        {
+            Columns = Table[0];
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Could not set table columns.");
+            throw;
+        }
+    }
 
     private List<List<string?>> CreateTableFromFile(string? filePath)
     {
@@ -67,7 +81,7 @@ public class CsvTable : IEnumerable<List<string?>>
             var type = Type.GetType(value);
             Types.Add(key, type);
         }
-    } 
+    }
 
     private void GoThroughTests()
     {
@@ -94,17 +108,22 @@ public class CsvTable : IEnumerable<List<string?>>
 
     private void CheckColumnsDataTypeEquality(List<List<string?>> table, Dictionary<string, Type> structure)
     {
-        if (table.Count > 0)
+        if (table.Count <= 0) return;
+        
+        // Foreach column
+        foreach (var columnName in Columns)
         {
-            // Foreach column
-            for (var i = 0; i < table[0].Count; ++i)
+            var column = GetColumnWithName(Table, Columns, columnName);
+            var columnType = FindTypeInJsonByColumnName(structure, columnName);
+            
+            try
             {
-                var column = GetColumnWithIndex(table, i);
-                var name = column[0];
-                var type = FindTypeInJsonByColumnName(structure, name);
-                column.RemoveAt(0);
-
-                CheckColumnDataTypeEquality(column, type);
+                CheckColumnDataTypeEquality(column, columnType);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in {columnName} column.");
+                throw;
             }
         }
     }
@@ -119,7 +138,7 @@ public class CsvTable : IEnumerable<List<string?>>
         catch (Exception ex)
         {
             Console.WriteLine($"Could not find {name} column in json structure.");
-            throw ex;
+            throw;
         }
     }
 
@@ -144,7 +163,7 @@ public class CsvTable : IEnumerable<List<string?>>
         catch (Exception ex)
         {
             Console.WriteLine($"Element '{element}' can't be casted to type {type}.");
-            throw ex;
+            throw;
         }
     }
 
@@ -152,16 +171,26 @@ public class CsvTable : IEnumerable<List<string?>>
     {
         try
         {
-            var methodInfo = typeof(Extensions).GetMethod("ToType",
-                BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(type);
+
+            var methodInfo = ChooseGenericMethodByTypeConstraints(type);
             
             return methodInfo;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"{type} type caused error.");
-            throw ex;
+            throw;
         }
+    }
+    
+    private static MethodInfo? ChooseGenericMethodByTypeConstraints(Type type)
+    {
+        if (type.IsValueType && !type.IsEnum)
+            return typeof(Extensions).GetMethod("ToTypeWithStructConstraint").MakeGenericMethod(type);
+        if (type.IsEnum)
+            return typeof(Extensions).GetMethod("ToTypeEnumConstraints").MakeGenericMethod(type);
+
+        return typeof(Extensions).GetMethod("ToTypeWithClassConstraint").MakeGenericMethod(type);
     }
 
     private static void TryAddElement<TData>(string? element, List<TData?> checkList) 
@@ -183,6 +212,24 @@ public class CsvTable : IEnumerable<List<string?>>
         }
 
         return column;
+    }
+
+    public List<string?> GetColumnWithName(List<List<string?>> table, List<string> columnNames, string columnName)
+    {
+        var indexOfColumn = columnNames.FindIndex(name=> name == columnName);
+        
+        if (indexOfColumn < 0)
+            throw new Exception($"Could not find column with name {columnName} in Columns");
+
+        try
+        {
+            return GetColumnWithIndex(table, indexOfColumn);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Could not find data of {columnName} column. Check format of table");
+            throw;
+        }
     }
 
     public void MakeEmptyAndSpaceElementsNull()

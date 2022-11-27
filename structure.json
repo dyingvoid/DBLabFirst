@@ -15,7 +15,7 @@
         "PersonName" : "System.String",
         "BookName" : "System.String",
         "Time" : "System.DateTime",
-        "Type" : "System.String"
+        "Type" : "DBFirstLab.EnumOperation"
     }
     
 }
