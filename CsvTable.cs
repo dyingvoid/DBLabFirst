@@ -28,7 +28,7 @@ public class CsvTable : IEnumerable<List<string?>>
             _table = new List<List<string?>>();
         }
         
-        // SetShape();
+        SetShape();
     }
     
     public List<List<string?>> Table => _table;
@@ -188,7 +188,7 @@ public class CsvTable : IEnumerable<List<string?>>
         if (type.IsValueType && !type.IsEnum)
             return typeof(Extensions).GetMethod("ToTypeWithStructConstraint").MakeGenericMethod(type);
         if (type.IsEnum)
-            return typeof(Extensions).GetMethod("ToTypeEnumConstraints").MakeGenericMethod(type);
+            return typeof(Extensions).GetMethod("ToTypeEnumConstraint").MakeGenericMethod(type);
 
         return typeof(Extensions).GetMethod("ToTypeWithClassConstraint").MakeGenericMethod(type);
     }

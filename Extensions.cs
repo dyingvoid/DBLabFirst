@@ -34,7 +34,7 @@ public static class Extensions
         return T.Parse(item, CultureInfo.InvariantCulture);
     }
 
-    public static TEnum? ToTypeEnumConstraints<TEnum>(this string? item) where TEnum : struct
+    public static TEnum? ToTypeEnumConstraint<TEnum>(this string? item) where TEnum : struct
     {
         if (item == null)
         {
