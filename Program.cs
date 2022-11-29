@@ -38,10 +38,18 @@ namespace DBFirstLab
             var history = new History(dbTables[1]);
             var customerList = InitializeObjects<Customer>(dbTables[2], list => new Customer(list));
             
+            GetBookInformation(bookList, customerList, history);
             Console.WriteLine("Success");
         }
-        
-        
+
+        public static void GetBookInformation(List<Book> books, List<Customer> customers, History history)
+        {
+            foreach (var book in books)
+            {
+                var additionalInformation = history.FindBookInformation(book);
+                Console.WriteLine($"{book.GetInformation()} {additionalInformation}");
+            }
+        }
 
         public static Dictionary<string, string>? FindConfigForFile(FileInfo csvFile, 
             Dictionary<string, Dictionary<string, string>> configuration)

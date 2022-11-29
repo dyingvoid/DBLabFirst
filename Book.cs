@@ -31,8 +31,12 @@ public class Book
     public int? YearPublished { get; set; }
     public uint? BookCase { get; set; }
     public uint? BookShelf { get; set; }
-    
 
+    public string GetInformation()
+    {
+        return $"{Name} {Author} {YearPublished} case: {BookCase} shelf:{BookShelf}.";
+    }
+    
     public T? SetIntegerValue<T>(string? value)
     where T : struct, IParsable<T>
     {

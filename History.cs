@@ -34,10 +34,10 @@ public class History
 
     public void AddObjects(List<string?> properties)
     {
-        Persons.Add(new Customer(new List<string?>() { properties[0]}));
-        Books.Add(new Book(new List<string?>() { properties[1] }));
-        AddTime(properties[2]);
-        AddOperation(properties[3]);
+        Persons.Add(new Customer(new List<string?>() { properties[0], properties[1]}));
+        Books.Add(new Book(new List<string?>() { properties[2] }));
+        AddTime(properties[3]);
+        AddOperation(properties[4]);
     }
 
     private void AddOperation(string? operation)
@@ -64,6 +64,25 @@ public class History
         {
             Times.Add(DateTime.Parse(time));
         }
+    }
+
+    public string FindBookInformation(Book book)
+    {
+        var bookIndexes = new List<int>();
+
+        for (int i = 0; i < Books.Count; ++i)
+        {
+            if (Books[i].Name == book.Name)
+                bookIndexes.Add(i);
+        }
+
+        foreach (var index in bookIndexes)
+        {
+            if (Operations[index] == EnumOperation.Borrow)
+                return $"Borrowed by {Persons[index].Name} at {Times[index]}.";
+        }
+        
+        return "";
     }
 
     public static bool CheckCustomerExistence(string customerName, int customerId, List<Customer> customers)

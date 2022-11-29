@@ -13,6 +13,7 @@
     },
     "History.csv" : {
         "PersonName" : "System.String",
+        "PersonId" : "System.Int32",
         "BookName" : "System.String",
         "Time" : "System.DateTime",
         "Type" : "DBFirstLab.EnumOperation"
