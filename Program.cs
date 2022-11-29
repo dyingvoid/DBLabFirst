@@ -34,28 +34,30 @@ namespace DBFirstLab
                     CreateCsvTableAndAddToCollection(csvFile, dbTables, config); 
             }
 
-            //var bookList = InitializeObjects<Book>(dbTables[0], list => new Book(list));
-            //var history = new History(dbTables[1]);
-            //var customerList = InitializeObjects<Customer>(dbTables[2], list => new Customer(list));
+            var bookList = InitializeObjects<Book>(dbTables[0], list => new Book(list));
+            var history = new History(dbTables[1]);
+            var customerList = InitializeObjects<Customer>(dbTables[2], list => new Customer(list));
             
             Console.WriteLine("Success");
         }
+        
+        
 
         public static Dictionary<string, string>? FindConfigForFile(FileInfo csvFile, 
             Dictionary<string, Dictionary<string, string>> configuration)
         {
-            var properties = File.ReadAllLines(csvFile.FullName)[0].Split(',').ToHashSet();
-
-            foreach (var (key, configDict) in configuration)
+            var dbStructureNames = configuration.Keys.ToList();
+            
+            try
             {
-                var keys = configDict.Keys.ToHashSet();
-                if (properties.SetEquals(keys))
-                {
-                    return configDict;
-                }
+                var dbKey = dbStructureNames.Find(key => key == csvFile.Name);
+                return configuration[dbKey];
             }
-
-            return null;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Could not find name {csvFile.Name} in structure.");
+                throw;
+            }
         }
         
         public static List<TObj> InitializeObjects<TObj>(CsvTable table, Func<List<string?>, TObj> constructorDelegate)

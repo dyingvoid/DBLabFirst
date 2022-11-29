@@ -1,5 +1,5 @@
 {
-    "BookTable" : {
+    "Book.csv" : {
         "Name" : "System.String",
         "AuthorName" : "System.String",
         "YearPublished" : "System.Int32",
@@ -7,11 +7,11 @@
         "Bookshelf" : "System.UInt32"
     }
     ,
-    "ConsumerTable" : {
+    "Person.csv" : {
         "Name" : "System.String",
         "Id" : "System.Int64"
     },
-    "HistoryTable" : {
+    "History.csv" : {
         "PersonName" : "System.String",
         "BookName" : "System.String",
         "Time" : "System.DateTime",

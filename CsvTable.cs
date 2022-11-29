@@ -58,7 +58,7 @@ public class CsvTable : IEnumerable<List<string?>>
     
     public void SetShape()
     {
-        Shape = Tuple.Create<long, long>(Table.Count, Table[0].Count);
+        Shape = Tuple.Create<long, long>(Columns.Count, Table.Count);
     }
 
     private static List<List<string?>> ReadFromFileToList(string? filePath)
@@ -85,25 +85,34 @@ public class CsvTable : IEnumerable<List<string?>>
 
     private void GoThroughTests()
     {
-        CheckTableDimensionsEquality(_table);
+        CheckStructureEquality(Types, Columns);
+        CheckTableDimensionsEquality(Table);
         CheckColumnsDataTypeEquality(Table, Types);
     }
 
     private void CheckTableDimensionsEquality(List<List<string?>> table)
     {
-        var size = table.Count;
+        var size = Columns.Count;
+        if (size <= 0)
+            throw new Exception("Could not find any column in table.");
 
-        if (size > 0)
+        for (int i = 0; i < table.Count; ++i)
         {
-            var sizeOfStroke = table[0].Count;
-            
-            for (var i = 0; i < size; ++i)
+            if (table[i].Count != size)
             {
-                if (table[i].Count != sizeOfStroke)
-                    throw new Exception($"Table dimensions are not equal." +
-                                        $" {i} stroke of size {table[i].Count}, when first is {sizeOfStroke}");
+                throw new Exception($"Stroke with index {i}(or {i + 2} in file) is size of {table[i].Count}," +
+                                    $"when must be {size}");
             }
         }
+    }
+
+    private void CheckStructureEquality(Dictionary<string, Type> structure, List<string> columns)
+    {
+        var structureNames = structure.Keys.ToHashSet();
+        var columnNames = columns.ToHashSet();
+
+        if (!structureNames.SetEquals(columnNames))
+            throw new Exception("Column names do not match names in json structure.");
     }
 
     private void CheckColumnsDataTypeEquality(List<List<string?>> table, Dictionary<string, Type> structure)
