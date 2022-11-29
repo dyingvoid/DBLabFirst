@@ -1,5 +1,4 @@
-﻿using System.Data.SqlTypes;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace DBFirstLab;
 
@@ -25,6 +24,7 @@ public static class Extensions
         return newCollection;
     }
 
+    // Three ToType methods are used in runtime by reflection in CsvTable
     public static T? ToTypeWithStructConstraint<T>(this string? item) where T : struct, IParsable<T>
     {
         if (item == null)

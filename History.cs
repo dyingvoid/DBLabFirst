@@ -11,7 +11,7 @@ public class History
     public List<DateTime?> Times { get; set; }
     public List<EnumOperation?> Operations { get; set; }
 
-    // List = {Persons.Name, Persons.Id, Book.Name, DateTime}
+    // List = {Persons.Name, Persons.Id, Book.Name, DateTime, Enum.EnumOperation}
     public History(CsvTable table)
     {
         Persons = new List<Customer?>();

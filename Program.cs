@@ -7,13 +7,6 @@ namespace DBFirstLab
         static void Main()
         {
             Start();
-            // Test();
-        }
-
-        public static void Test()
-        {
-            string time = "2/16/2008 12:15:12 PM";
-            var newtime = time.ToTypeWithStructConstraint<DateTime>();
         }
 
         public static void Start()
@@ -23,9 +16,10 @@ namespace DBFirstLab
             
             var directoryInfo = Directory.CreateDirectory(directoryPath);
             var fileEnumerator = directoryInfo.EnumerateFiles("*.csv");
+            
             var configDict = Controller.ParseJson(myFile);
-
             var dbTables = new List<CsvTable>();
+            
             foreach (var csvFile in fileEnumerator)
             {
                 var config = FindConfigForFile(csvFile, configDict);
@@ -36,13 +30,11 @@ namespace DBFirstLab
 
             var bookList = InitializeObjects<Book>(dbTables[0], list => new Book(list));
             var history = new History(dbTables[1]);
-            var customerList = InitializeObjects<Customer>(dbTables[2], list => new Customer(list));
-            
-            GetBookInformation(bookList, customerList, history);
-            Console.WriteLine("Success");
+
+            GetBookInformation(bookList, history);
         }
 
-        public static void GetBookInformation(List<Book> books, List<Customer> customers, History history)
+        public static void GetBookInformation(List<Book> books, History history)
         {
             foreach (var book in books)
             {
@@ -51,7 +43,7 @@ namespace DBFirstLab
             }
         }
 
-        public static Dictionary<string, string>? FindConfigForFile(FileInfo csvFile, 
+        public static Dictionary<string, string> FindConfigForFile(FileInfo csvFile, 
             Dictionary<string, Dictionary<string, string>> configuration)
         {
             var dbStructureNames = configuration.Keys.ToList();

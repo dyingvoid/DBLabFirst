@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Globalization;
 using System.Reflection;
 
 namespace DBFirstLab;
@@ -8,10 +7,12 @@ public class CsvTable : IEnumerable<List<string?>>
 {
     private readonly List<List<string?>> _table;
 
-    public CsvTable(FileInfo? csvFile, Dictionary<string, string> configuration)
+    public CsvTable(FileInfo csvFile, Dictionary<string, string> configuration)
     {
         Types = new Dictionary<string, Type>();
         Columns = new List<string>();
+        Shape = new Tuple<long?, long?>(null, null);
+        
         try
         {
             _table = CreateTableFromFile(csvFile.FullName);
@@ -32,8 +33,7 @@ public class CsvTable : IEnumerable<List<string?>>
     }
     
     public List<List<string?>> Table => _table;
-    
-    public Tuple<long, long> Shape { get; set; }
+    public Tuple<long?, long?> Shape { get; set; }
     public object this[int index] => GetColumnWithIndex(Table, index);
     public Dictionary<string, Type> Types { get; }
     public List<string> Columns { get; set; }
@@ -44,31 +44,31 @@ public class CsvTable : IEnumerable<List<string?>>
         {
             Columns = Table[0];
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             Console.WriteLine("Could not set table columns.");
             throw;
         }
     }
 
-    private List<List<string?>> CreateTableFromFile(string? filePath)
+    private List<List<string>> CreateTableFromFile(string filePath)
     {
         return ReadFromFileToList(filePath);
     }
     
     public void SetShape()
     {
-        Shape = Tuple.Create<long, long>(Columns.Count, Table.Count);
+        Shape = Tuple.Create<long?, long?>(Columns.Count, Table.Count);
     }
 
-    private static List<List<string?>> ReadFromFileToList(string? filePath)
+    private static List<List<string>> ReadFromFileToList(string filePath)
     {
         if (!filePath.EndsWith(".csv"))
             throw new Exception("Can't read non csv file.");
         
         var tempCsvTable = File.ReadAllLines(filePath)
                 .ToList()
-                .PureForEach<List<string>, string, List<List<string?>>, List<string?>>
+                .PureForEach<List<string>, string, List<List<string>>, List<string>>
                     (line => line.Split(',').ToList());
         
         return tempCsvTable;
@@ -79,7 +79,15 @@ public class CsvTable : IEnumerable<List<string?>>
         foreach (var (key, value) in types)
         {
             var type = Type.GetType(value);
-            Types.Add(key, type);
+            try
+            {
+                Types.Add(key, type);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Could not set column types.");
+                throw;
+            }
         }
     }
 
@@ -129,7 +137,7 @@ public class CsvTable : IEnumerable<List<string?>>
             {
                 CheckColumnDataTypeEquality(column, columnType);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Console.WriteLine($"Error in {columnName} column.");
                 throw;
@@ -144,7 +152,7 @@ public class CsvTable : IEnumerable<List<string?>>
             var type = structure[name];
             return type;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             Console.WriteLine($"Could not find {name} column in json structure.");
             throw;
@@ -155,7 +163,7 @@ public class CsvTable : IEnumerable<List<string?>>
     {
         foreach (var element in column)
         {
-            if (type != typeof(System.String))
+            if (type != typeof(String))
             {
                 var castGenericMethod = TryMakeGenericWithType(type);
                 TryCastToType(type, castGenericMethod, element);
@@ -167,9 +175,9 @@ public class CsvTable : IEnumerable<List<string?>>
     {
         try
         {
-            var elem = castGenericMethod.Invoke(null, new object[] { element });
+            castGenericMethod.Invoke(null, new object[] { element });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             Console.WriteLine($"Element '{element}' can't be casted to type {type}.");
             throw;
@@ -185,14 +193,14 @@ public class CsvTable : IEnumerable<List<string?>>
             
             return methodInfo;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             Console.WriteLine($"{type} type caused error.");
             throw;
         }
     }
     
-    private static MethodInfo? ChooseGenericMethodByTypeConstraints(Type type)
+    private static MethodInfo ChooseGenericMethodByTypeConstraints(Type type)
     {
         if (type.IsValueType && !type.IsEnum)
             return typeof(Extensions).GetMethod("ToTypeWithStructConstraint").MakeGenericMethod(type);
@@ -200,15 +208,6 @@ public class CsvTable : IEnumerable<List<string?>>
             return typeof(Extensions).GetMethod("ToTypeEnumConstraint").MakeGenericMethod(type);
 
         return typeof(Extensions).GetMethod("ToTypeWithClassConstraint").MakeGenericMethod(type);
-    }
-
-    private static void TryAddElement<TData>(string? element, List<TData?> checkList) 
-        where TData : struct, IParsable<TData>
-    {
-        if (element == null)
-            checkList.Add(null);
-        else
-            checkList.Add(TData.Parse(element, CultureInfo.InvariantCulture));
     }
 
     public List<string?> GetColumnWithIndex(List<List<string?>> table, int index)
@@ -234,7 +233,7 @@ public class CsvTable : IEnumerable<List<string?>>
         {
             return GetColumnWithIndex(table, indexOfColumn);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             Console.WriteLine($"Could not find data of {columnName} column. Check format of table");
             throw;
@@ -243,40 +242,14 @@ public class CsvTable : IEnumerable<List<string?>>
 
     public void MakeEmptyAndSpaceElementsNull()
     {
-        for (var i = 0; i < _table.Count; ++i)
+        foreach (var stroke in _table)
         {
-            for (var j = 0; j < _table[i].Count; ++j)
+            for (var j = 0; j < stroke.Count; ++j)
             {
-                if(_table[i][j].IsEmptyOrWhiteSpace())
-                    _table[i][j] = null;
+                if(stroke[j].IsEmptyOrWhiteSpace())
+                    stroke[j] = null;
             }
         }
-    }
-
-    public void FillNullsWithValue(string value)
-    {
-        for (var i = 0; i < _table.Count; ++i)
-        {
-            for (var j = 0; j < _table[i].Count; ++j)
-            {
-                if(_table[i][j] == null)
-                    _table[i][j] = value;
-            }
-        }
-    }
-
-    public List<TValue> GetColumnGenericType<TValue>(string? columnName)
-    where TValue : IParsable<TValue>
-    {
-        int columnNameInt = _table[0].FindIndex(str => str == columnName);
-        
-        if (columnNameInt == -1)
-            throw new ArgumentException("Column was not found.");
-        
-        List<TValue> outList = _table[columnNameInt]
-            .Select(str => TValue.Parse(str, CultureInfo.InvariantCulture)).ToList();
-
-        return outList;
     }
 
     IEnumerator IEnumerable.GetEnumerator()
