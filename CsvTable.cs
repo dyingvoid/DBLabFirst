@@ -158,7 +158,7 @@ public class CsvTable : IEnumerable<List<string?>>
         // Foreach column
         foreach (var columnName in Columns)
         {
-            var column = GetColumnWithName(Table, Columns, columnName);
+            var column = GetColumnWithName(columnName);
             var columnType = FindTypeInJsonByColumnName(structure, columnName);
             
             try
@@ -284,6 +284,11 @@ public class CsvTable : IEnumerable<List<string?>>
         }
     }
 
+    public List<string?> GetColumnWithName(string columnName)
+    {
+        return GetColumnWithName(Table, Columns, columnName);
+    }
+
     public void MakeEmptyAndSpaceElementsNull()
     {
         foreach (var stroke in _table)
@@ -315,7 +320,7 @@ public class CsvTable : IEnumerable<List<string?>>
     public CsvTable TakePart(string columnName, Func<string, bool> predicate)
     {
         var partedTable = new List<List<string?>>();
-        var column = GetColumnWithName(this.Table, this.Columns, columnName);
+        var column = GetColumnWithName(columnName);
         var listOfIndexes = new List<int>();
 
         for (var i = 0; i < column.Count; ++i)
@@ -353,11 +358,9 @@ public class CsvTable : IEnumerable<List<string?>>
     {
         var thisColumnIndex = Columns.FindIndex(name => name == columnName1);
         var csvColumnIndex = csv.Columns.FindIndex(name => name == columnName2);
-        
-        var thisColumn = GetColumnWithIndex(Table, thisColumnIndex);
-        var csvColumn = GetColumnWithIndex(csv.Table, csvColumnIndex);
-        
-        var elementsIntersection = Enumerable.Intersect(thisColumn, csvColumn);
+
+        var elementsIntersection = GetColumnWithIndex(Table, thisColumnIndex)
+            .Intersect(GetColumnWithIndex(csv.Table, csvColumnIndex));
 
         var mergedTables = new List<List<string?>>();
 
@@ -365,12 +368,12 @@ public class CsvTable : IEnumerable<List<string?>>
         {
             if (element != null)
             {
-                var thisStroke = Table.Find(stroke => stroke[thisColumnIndex] == element);
                 var csvStroke = csv.Table.Find(stroke => stroke[csvColumnIndex] == element);
-                
                 csvStroke.RemoveAt(csvColumnIndex);
                 
+                var thisStroke = Table.Find(stroke => stroke[thisColumnIndex] == element);
                 thisStroke.AddRange(csvStroke);
+                
                 mergedTables.Add(thisStroke);
             }
         }
@@ -387,5 +390,67 @@ public class CsvTable : IEnumerable<List<string?>>
         
         SetShape();
         GoThroughTests();
+    }
+
+    public void Print()
+    {
+        var columnWidths = new List<int>();
+        foreach (var column in Columns)
+        {
+            columnWidths.Add(GetColumnWidth(column));
+        }
+
+        PrintColumns(columnWidths);
+        foreach (var width in columnWidths)
+        {
+        }
+    }
+
+    public void PrintColumns(List<int> columnWidths)
+    {
+        int length = 0;
+        List<int> lens = new List<int>();
+        
+        foreach (var (width, name) in columnWidths.Zip(Columns))
+        {
+            string output = $"|{name}" + new string(' ', width - name.Length);
+            length += output.Length;
+            lens.Add(length);
+            Console.Write(output);
+        }
+        Console.WriteLine("|");
+        Console.Write("|");
+
+        for (var i = 0; i < length; ++i)
+        {
+            if(lens.Contains(i+1))
+                Console.Write('|');
+            else
+                Console.Write('-');
+        }
+    }
+    
+    private int GetColumnWidth(string columnName)
+    {
+        var column = GetColumnWithName(columnName);
+
+        int length = 0;
+        foreach (var element in column)
+        {
+            if (element!= null && element.Length > length)
+                length = element.Length;
+        }
+
+        try
+        {
+            var smt = Columns.Find(name => name == columnName).Length;
+        }
+        catch (Exception)
+        {
+            Console.WriteLine($"There is no column with name {columnName}");
+            throw;
+        }
+
+        return Math.Max(length, Columns.Find(name => name == columnName).Length);
     }
 }
