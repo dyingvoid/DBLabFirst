@@ -19,19 +19,21 @@ namespace DBFirstLab
             
             var configDict = Controller.ParseJson(myFile);
             var dbTables = new List<CsvTable>();
-            
+
             foreach (var csvFile in fileEnumerator)
             {
                 var config = FindConfigForFile(csvFile, configDict);
-                
-                if(config != null)
-                    CreateCsvTableAndAddToCollection(csvFile, dbTables, config); 
+
+                if (config != null)
+                    CreateCsvTableAndAddToCollection(csvFile, dbTables, config);
             }
 
             var bookList = InitializeObjects<Book>(dbTables[0], list => new Book(list));
             var history = new History(dbTables[1]);
 
             GetBookInformation(bookList, history);
+            
+            dbTables[0].MergeByColumn(dbTables[1], "Name", "BookName");
         }
 
         public static void GetBookInformation(List<Book> books, History history)

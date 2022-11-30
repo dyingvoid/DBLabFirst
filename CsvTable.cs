@@ -5,7 +5,7 @@ namespace DBFirstLab;
 
 public class CsvTable : IEnumerable<List<string?>>
 {
-    private readonly List<List<string?>> _table;
+    private List<List<string?>> _table;
 
     public CsvTable(FileInfo csvFile, Dictionary<string, string> configuration)
     {
@@ -31,8 +31,36 @@ public class CsvTable : IEnumerable<List<string?>>
         
         SetShape();
     }
+
+    public CsvTable(List<List<string?>> table, CsvTable csv)
+    {
+        Types = csv.Types;
+        Columns = csv.Columns;
+        Shape = new Tuple<long?, long?>(null, null);
+
+        try
+        {
+            _table = table;
+            GoThroughTests();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message + $" Could not create CsvTable with table.");
+            _table = new List<List<string?>>();
+        }
+        
+        SetShape();
+    }
+
+    public List<List<string?>> Table
+    {
+        get => _table;
+        set => _table = value;
+    }
     
-    public List<List<string?>> Table => _table;
+    /// <summary>
+    /// Number of columns, number of strokes
+    /// </summary>
     public Tuple<long?, long?> Shape { get; set; }
     public object this[int index] => GetColumnWithIndex(Table, index);
     public Dictionary<string, Type> Types { get; }
@@ -222,6 +250,22 @@ public class CsvTable : IEnumerable<List<string?>>
         return column;
     }
 
+    public void RemoveColumnWithIndex(int index)
+    {
+        try
+        {
+            foreach (var stroke in Table)
+            {
+                stroke.RemoveAt(index);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Could not remove {index} column.");
+            throw;
+        }
+    }
+
     public List<string?> GetColumnWithName(List<List<string?>> table, List<string> columnNames, string columnName)
     {
         var indexOfColumn = columnNames.FindIndex(name=> name == columnName);
@@ -261,5 +305,87 @@ public class CsvTable : IEnumerable<List<string?>>
     {
         var enumerator = _table.GetEnumerator();
         return enumerator;
+    }
+
+    public List<string?> At(int index)
+    {
+        return Table[index];
+    }
+    
+    public CsvTable TakePart(string columnName, Func<string, bool> predicate)
+    {
+        var partedTable = new List<List<string?>>();
+        var column = GetColumnWithName(this.Table, this.Columns, columnName);
+        var listOfIndexes = new List<int>();
+
+        for (var i = 0; i < column.Count; ++i)
+        {
+            if (predicate(column[i]))
+                partedTable.Add(Table[i]);
+        }
+
+        return new CsvTable(partedTable, this);
+    }
+
+    public void Merge(CsvTable csv)
+    {
+        if (Shape.Item2 != csv.Shape.Item2)
+            throw new Exception("Cannot merge tables - different number of strokes.");
+
+        if (Columns.Any(name => csv.Columns.Contains(name)))
+            throw new Exception("Cannot merge - at least one or more of column names are equal.");
+        
+        foreach (var (name, type) in csv.Types)
+            Types.Add(name, type);
+
+        foreach (var (thisStroke, csvStroke) in Enumerable.Zip(Table, csv.Table))
+        {
+            thisStroke.AddRange(csvStroke);
+        }
+        
+        Columns.AddRange(csv.Columns);
+        SetShape();
+        
+        GoThroughTests();
+    }
+
+    public void MergeByColumn(CsvTable csv, string columnName1, string columnName2)
+    {
+        var thisColumnIndex = Columns.FindIndex(name => name == columnName1);
+        var csvColumnIndex = csv.Columns.FindIndex(name => name == columnName2);
+        
+        var thisColumn = GetColumnWithIndex(Table, thisColumnIndex);
+        var csvColumn = GetColumnWithIndex(csv.Table, csvColumnIndex);
+        
+        var elementsIntersection = Enumerable.Intersect(thisColumn, csvColumn);
+
+        var mergedTables = new List<List<string?>>();
+
+        foreach (var element in elementsIntersection)
+        {
+            if (element != null)
+            {
+                var thisStroke = Table.Find(stroke => stroke[thisColumnIndex] == element);
+                var csvStroke = csv.Table.Find(stroke => stroke[csvColumnIndex] == element);
+                
+                csvStroke.RemoveAt(csvColumnIndex);
+                
+                thisStroke.AddRange(csvStroke);
+                mergedTables.Add(thisStroke);
+            }
+        }
+
+        Table = mergedTables;
+        
+        Columns.AddRange(csv.Columns);
+        Columns.Remove(columnName2);
+        
+        foreach (var (name, type) in csv.Types)
+            Types.Add(name, type);
+        
+        Types.Remove(columnName2);
+        
+        SetShape();
+        GoThroughTests();
     }
 }
