@@ -28,27 +28,13 @@ namespace DBFirstLab
                     CreateCsvTableAndAddToCollection(csvFile, dbTables, config);
             }
 
-            var bookList = InitializeObjects<Book>(dbTables[0], list => new Book(list));
-            var history = new History(dbTables[1]);
-
-            GetBookInformation(bookList, history);
-            
             dbTables[0].MergeByColumn(dbTables[1], "Name", "BookName");
             foreach (var table in dbTables)
             {
                 table.Print();
             }
         }
-
-        public static void GetBookInformation(List<Book> books, History history)
-        {
-            foreach (var book in books)
-            {
-                var additionalInformation = history.FindBookInformation(book);
-                Console.WriteLine($"{book.GetInformation()} {additionalInformation}");
-            }
-        }
-
+        
         public static Dictionary<string, string> FindConfigForFile(FileInfo csvFile, 
             Dictionary<string, Dictionary<string, string>> configuration)
         {
@@ -66,18 +52,6 @@ namespace DBFirstLab
             }
         }
         
-        public static List<TObj> InitializeObjects<TObj>(CsvTable table, Func<List<string?>, TObj> constructorDelegate)
-        {
-            var objectList = new List<TObj>();
-            
-            foreach (var stroke in table)
-            {
-                objectList.Add(constructorDelegate(stroke));
-            }
-
-            return objectList;
-        }
-
         private static void CreateCsvTableAndAddToCollection(FileInfo csvFile, 
             List<CsvTable> dbTables, 
             Dictionary<string, string> configuration)
