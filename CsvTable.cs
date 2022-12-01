@@ -368,7 +368,8 @@ public class CsvTable : IEnumerable<List<string?>>
         {
             if (element != null)
             {
-                var csvStroke = csv.Table.Find(stroke => stroke[csvColumnIndex] == element);
+                var csvStroke = new List<string?>
+                    (csv.Table.Find(stroke => stroke[csvColumnIndex] == element));
                 csvStroke.RemoveAt(csvColumnIndex);
                 
                 var thisStroke = Table.Find(stroke => stroke[thisColumnIndex] == element);
