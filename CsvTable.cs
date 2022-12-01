@@ -250,22 +250,6 @@ public class CsvTable : IEnumerable<List<string?>>
         return column;
     }
 
-    public void RemoveColumnWithIndex(int index)
-    {
-        try
-        {
-            foreach (var stroke in Table)
-            {
-                stroke.RemoveAt(index);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Could not remove {index} column.");
-            throw;
-        }
-    }
-
     public List<string?> GetColumnWithName(List<List<string?>> table, List<string> columnNames, string columnName)
     {
         var indexOfColumn = columnNames.FindIndex(name=> name == columnName);
@@ -315,43 +299,6 @@ public class CsvTable : IEnumerable<List<string?>>
     public List<string?> At(int index)
     {
         return Table[index];
-    }
-    
-    public CsvTable TakePart(string columnName, Func<string, bool> predicate)
-    {
-        var partedTable = new List<List<string?>>();
-        var column = GetColumnWithName(columnName);
-        var listOfIndexes = new List<int>();
-
-        for (var i = 0; i < column.Count; ++i)
-        {
-            if (predicate(column[i]))
-                partedTable.Add(Table[i]);
-        }
-
-        return new CsvTable(partedTable, this);
-    }
-
-    public void Merge(CsvTable csv)
-    {
-        if (Shape.Item2 != csv.Shape.Item2)
-            throw new Exception("Cannot merge tables - different number of strokes.");
-
-        if (Columns.Any(name => csv.Columns.Contains(name)))
-            throw new Exception("Cannot merge - at least one or more of column names are equal.");
-        
-        foreach (var (name, type) in csv.Types)
-            Types.Add(name, type);
-
-        foreach (var (thisStroke, csvStroke) in Enumerable.Zip(Table, csv.Table))
-        {
-            thisStroke.AddRange(csvStroke);
-        }
-        
-        Columns.AddRange(csv.Columns);
-        SetShape();
-        
-        GoThroughTests();
     }
 
     public void MergeByColumn(CsvTable csv, string columnName1, string columnName2)
