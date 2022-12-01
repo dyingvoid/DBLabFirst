@@ -401,12 +401,54 @@ public class CsvTable : IEnumerable<List<string?>>
         }
 
         PrintColumns(columnWidths);
-        foreach (var width in columnWidths)
+        PrintContent(columnWidths);
+        PrintBorder(columnWidths);
+    }
+
+    private void PrintContent(List<int> columnWidths)
+    {
+        foreach (var stroke in this)
         {
+            var enumerator = columnWidths.GetEnumerator();
+            enumerator.MoveNext();
+
+            for (var i = 0; i < stroke.Count; ++i)
+            {
+                if(stroke[i] == null)
+                    Console.Write($"|n/a" + new string(' ', enumerator.Current - 3));
+                else
+                    Console.Write($"|{stroke[i]}" + new string(' ', enumerator.Current - stroke[i].Length));
+                
+                enumerator.MoveNext();
+            }
+
+            Console.WriteLine('|');
         }
     }
 
-    public void PrintColumns(List<int> columnWidths)
+    private void PrintBorder(List<int> widths)
+    {
+        var lens = new List<int>() {0};
+        int len = 0;
+        
+        foreach (var width in widths)
+        {
+            len += width + 1;
+            lens.Add(len);
+        }
+        
+        for (var i = 0; i < widths.Sum() + widths.Count + 1; ++i)
+        {
+            if(lens.Contains(i))
+                Console.Write('|');
+            else
+                Console.Write('-');
+        }
+        
+        Console.WriteLine();
+    }
+
+    private void PrintColumns(List<int> columnWidths)
     {
         int length = 0;
         List<int> lens = new List<int>();
@@ -428,6 +470,7 @@ public class CsvTable : IEnumerable<List<string?>>
             else
                 Console.Write('-');
         }
+        Console.WriteLine();
     }
     
     private int GetColumnWidth(string columnName)

@@ -33,8 +33,11 @@ namespace DBFirstLab
 
             GetBookInformation(bookList, history);
             
-            dbTables[0].MergeByColumn(dbTables[1], "Name", "BookName");
-            dbTables[0].Print();
+            //dbTables[0].MergeByColumn(dbTables[1], "Name", "BookName");
+            foreach (var table in dbTables)
+            {
+                table.Print();
+            }
         }
 
         public static void GetBookInformation(List<Book> books, History history)
