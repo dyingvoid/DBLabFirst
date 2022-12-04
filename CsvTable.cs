@@ -27,6 +27,7 @@ public class CsvTable : IEnumerable<List<string?>>
         {
             Console.WriteLine(ex.Message + $" Could not create CsvTable with {csvFile.Name}.");
             _table = new List<List<string?>>();
+            Columns = new List<string>();
         }
         
         SetShape();
@@ -309,25 +310,8 @@ public class CsvTable : IEnumerable<List<string?>>
         var elementsIntersection = GetColumnWithIndex(Table, thisColumnIndex)
             .Intersect(GetColumnWithIndex(csv.Table, csvColumnIndex));
 
-        var mergedTables = new List<List<string?>>();
+        Table = CreateMergedTable(csv, elementsIntersection, csvColumnIndex, thisColumnIndex);
 
-        foreach (var element in elementsIntersection)
-        {
-            if (element != null)
-            {
-                var csvStroke = new List<string?>
-                    (csv.Table.Find(stroke => stroke[csvColumnIndex] == element));
-                csvStroke.RemoveAt(csvColumnIndex);
-                
-                var thisStroke = Table.Find(stroke => stroke[thisColumnIndex] == element);
-                thisStroke.AddRange(csvStroke);
-                
-                mergedTables.Add(thisStroke);
-            }
-        }
-
-        Table = mergedTables;
-        
         Columns.AddRange(csv.Columns);
         Columns.Remove(columnName2);
         
@@ -340,8 +324,46 @@ public class CsvTable : IEnumerable<List<string?>>
         GoThroughTests();
     }
 
+    private List<List<string?>> CreateMergedTable(CsvTable csv, 
+        IEnumerable<string?> elementsIntersection, 
+        int csvColumnIndex, 
+        int thisColumnIndex)
+    {
+        var mergedTables = new List<List<string?>>();
+
+        foreach (var element in elementsIntersection)
+        {
+            if (element != null)
+            {
+                var csvStrokes = csv.Table
+                    .FindAll(stroke => stroke[csvColumnIndex] == element);
+
+                var thisStroke = Table.Find(stroke => stroke[thisColumnIndex] == element);
+
+                foreach (var stroke in csvStrokes)
+                {
+                    var csvStrokeCopy = new List<string?>(stroke);
+                    csvStrokeCopy.RemoveAt(csvColumnIndex);
+
+                    var thisStrokeCopy = new List<string?>(thisStroke);
+
+                    thisStrokeCopy.AddRange(csvStrokeCopy);
+                    mergedTables.Add(thisStrokeCopy);
+                }
+            }
+        }
+
+        return mergedTables;
+    }
+
     public void Print()
     {
+        if (Table.Count == 0 && Columns.Count == 0)
+        {
+            Console.WriteLine("Empty");
+            return;
+        }
+
         var columnWidths = new List<int>();
         foreach (var column in Columns)
         {

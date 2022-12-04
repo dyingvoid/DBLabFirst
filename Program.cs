@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace DBFirstLab
+﻿namespace DBFirstLab
 {
     class Program
     {
@@ -28,13 +26,29 @@ namespace DBFirstLab
                     CreateCsvTableAndAddToCollection(csvFile, dbTables, config);
             }
 
-            dbTables[0].MergeByColumn(dbTables[1], "Name", "BookName");
+            dbTables[0].MergeByColumn(dbTables[2], "Name", "BookName");
+            PrintBookAvailability(dbTables[0]);
             foreach (var table in dbTables)
             {
                 table.Print();
+                Console.WriteLine();
             }
         }
-        
+
+        public static void PrintBookAvailability(CsvTable bookTable)
+        {
+            for(var i = 0; i < bookTable.Table.Count; ++i)
+            {
+                var strokeCopies = bookTable.Table
+                    .FindAll(strokeCopy => strokeCopy[0] == bookTable.Table[i][0]);
+
+                for (var j = 0; j < strokeCopies.Count - 1; ++j)
+                {
+                    bookTable.Table.Remove(strokeCopies[j]);
+                }
+            }
+        }
+
         public static Dictionary<string, string> FindConfigForFile(FileInfo csvFile, 
             Dictionary<string, Dictionary<string, string>> configuration)
         {

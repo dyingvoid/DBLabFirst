@@ -5,8 +5,7 @@
         "YearPublished" : "System.Int32",
         "Bookcase" : "System.UInt32",
         "Bookshelf" : "System.UInt32"
-    }
-    ,
+    },
     "Person.csv" : {
         "Name" : "System.String",
         "Id" : "System.Int64"
@@ -17,6 +16,10 @@
         "BookName" : "System.String",
         "Time" : "System.DateTime",
         "Type" : "DBFirstLab.EnumOperation"
+    },
+    "Empty.csv" : {
+        "FirstName" : "System.String",
+        "SecondName" : "System.String",
+        "Age" : "System.Int32"
     }
-    
 }
