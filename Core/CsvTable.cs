@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using System.Reflection;
+using DBFirstLab.Core;
 
 namespace DBFirstLab;
 
@@ -20,34 +20,15 @@ public class CsvTable : IEnumerable<List<string?>>
             SetColumns();
             Table.RemoveAt(0);
             MakeEmptyAndSpaceElementsNull();
-            
-            GoThroughTests();
+
+            var tests = new DbTest(this);
+            tests.Test();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message + $" Could not create CsvTable with {csvFile.Name}.");
             _table = new List<List<string?>>();
             Columns = new List<string>();
-        }
-        
-        SetShape();
-    }
-
-    public CsvTable(List<List<string?>> table, CsvTable csv)
-    {
-        Types = csv.Types;
-        Columns = csv.Columns;
-        Shape = new Tuple<long?, long?>(null, null);
-
-        try
-        {
-            _table = table;
-            GoThroughTests();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message + $" Could not create CsvTable with table.");
-            _table = new List<List<string?>>();
         }
         
         SetShape();
@@ -120,61 +101,7 @@ public class CsvTable : IEnumerable<List<string?>>
         }
     }
 
-    private void GoThroughTests()
-    {
-        CheckStructureEquality(Types, Columns);
-        CheckTableDimensionsEquality(Table);
-        CheckColumnsDataTypeEquality(Table, Types);
-    }
-
-    private void CheckTableDimensionsEquality(List<List<string?>> table)
-    {
-        var size = Columns.Count;
-        if (size <= 0)
-            throw new Exception("Could not find any column in table.");
-
-        for (int i = 0; i < table.Count; ++i)
-        {
-            if (table[i].Count != size)
-            {
-                throw new Exception($"Stroke with index {i}(or {i + 2} in file) is size of {table[i].Count}," +
-                                    $"when must be {size}");
-            }
-        }
-    }
-
-    private void CheckStructureEquality(Dictionary<string, Type> structure, List<string> columns)
-    {
-        var structureNames = structure.Keys.ToHashSet();
-        var columnNames = columns.ToHashSet();
-
-        if (!structureNames.SetEquals(columnNames))
-            throw new Exception("Column names do not match names in json structure.");
-    }
-
-    private void CheckColumnsDataTypeEquality(List<List<string?>> table, Dictionary<string, Type> structure)
-    {
-        if (table.Count <= 0) return;
-        
-        // Foreach column
-        foreach (var columnName in Columns)
-        {
-            var column = GetColumnWithName(columnName);
-            var columnType = FindTypeInJsonByColumnName(structure, columnName);
-            
-            try
-            {
-                CheckColumnDataTypeEquality(column, columnType);
-            }
-            catch (Exception)
-            {
-                Console.WriteLine($"Error in {columnName} column.");
-                throw;
-            }
-        }
-    }
-
-    private static Type FindTypeInJsonByColumnName(Dictionary<string, Type> structure, string? name)
+    public static Type FindTypeInJsonByColumnName(Dictionary<string, Type> structure, string? name)
     {
         try
         {
@@ -186,57 +113,6 @@ public class CsvTable : IEnumerable<List<string?>>
             Console.WriteLine($"Could not find {name} column in json structure.");
             throw;
         }
-    }
-
-    private static void CheckColumnDataTypeEquality(List<string?> column, Type type)
-    {
-        foreach (var element in column)
-        {
-            if (type != typeof(String))
-            {
-                var castGenericMethod = TryMakeGenericWithType(type);
-                TryCastToType(type, castGenericMethod, element);
-            }
-        }
-    }
-
-    private static void TryCastToType(Type type, MethodInfo castGenericMethod, string? element)
-    {
-        try
-        {
-            castGenericMethod.Invoke(null, new object[] { element });
-        }
-        catch (Exception)
-        {
-            Console.WriteLine($"Element '{element}' can't be casted to type {type}.");
-            throw;
-        }
-    }
-
-    private static MethodInfo TryMakeGenericWithType(Type type)
-    {
-        try
-        {
-
-            var methodInfo = ChooseGenericMethodByTypeConstraints(type);
-            
-            return methodInfo;
-        }
-        catch (Exception)
-        {
-            Console.WriteLine($"{type} type caused error.");
-            throw;
-        }
-    }
-    
-    private static MethodInfo ChooseGenericMethodByTypeConstraints(Type type)
-    {
-        if (type.IsValueType && !type.IsEnum)
-            return typeof(Extensions).GetMethod("ToTypeWithStructConstraint").MakeGenericMethod(type);
-        if (type.IsEnum)
-            return typeof(Extensions).GetMethod("ToTypeEnumConstraint").MakeGenericMethod(type);
-
-        return typeof(Extensions).GetMethod("ToTypeWithClassConstraint").MakeGenericMethod(type);
     }
 
     public List<string?> GetColumnWithIndex(List<List<string?>> table, int index)
@@ -321,7 +197,9 @@ public class CsvTable : IEnumerable<List<string?>>
         Types.Remove(columnName2);
         
         SetShape();
-        GoThroughTests();
+
+        var test = new DbTest(csv);
+        test.Test();
     }
 
     private List<List<string?>> CreateMergedTable(CsvTable csv, 
@@ -356,94 +234,7 @@ public class CsvTable : IEnumerable<List<string?>>
         return mergedTables;
     }
 
-    public void Print()
-    {
-        if (Table.Count == 0 && Columns.Count == 0)
-        {
-            Console.WriteLine("Empty");
-            return;
-        }
-
-        var columnWidths = new List<int>();
-        foreach (var column in Columns)
-        {
-            columnWidths.Add(GetColumnWidth(column));
-        }
-
-        PrintColumns(columnWidths);
-        PrintContent(columnWidths);
-        PrintBorder(columnWidths);
-    }
-
-    private void PrintContent(List<int> columnWidths)
-    {
-        foreach (var stroke in this)
-        {
-            var enumerator = columnWidths.GetEnumerator();
-            enumerator.MoveNext();
-
-            for (var i = 0; i < stroke.Count; ++i)
-            {
-                if(stroke[i] == null)
-                    Console.Write($"|n/a" + new string(' ', enumerator.Current - 3));
-                else
-                    Console.Write($"|{stroke[i]}" + new string(' ', enumerator.Current - stroke[i].Length));
-                
-                enumerator.MoveNext();
-            }
-
-            Console.WriteLine('|');
-        }
-    }
-
-    private void PrintBorder(List<int> widths)
-    {
-        var lens = new List<int>() {0};
-        int len = 0;
-        
-        foreach (var width in widths)
-        {
-            len += width + 1;
-            lens.Add(len);
-        }
-        
-        for (var i = 0; i < widths.Sum() + widths.Count + 1; ++i)
-        {
-            if(lens.Contains(i))
-                Console.Write('|');
-            else
-                Console.Write('-');
-        }
-        
-        Console.WriteLine();
-    }
-
-    private void PrintColumns(List<int> columnWidths)
-    {
-        int length = 0;
-        List<int> lens = new List<int>();
-        
-        foreach (var (width, name) in columnWidths.Zip(Columns))
-        {
-            string output = $"|{name}" + new string(' ', width - name.Length);
-            length += output.Length;
-            lens.Add(length);
-            Console.Write(output);
-        }
-        Console.WriteLine("|");
-        Console.Write("|");
-
-        for (var i = 0; i < length; ++i)
-        {
-            if(lens.Contains(i+1))
-                Console.Write('|');
-            else
-                Console.Write('-');
-        }
-        Console.WriteLine();
-    }
-    
-    private int GetColumnWidth(string columnName)
+    public int GetColumnWidth(string columnName)
     {
         var column = GetColumnWithName(columnName);
 

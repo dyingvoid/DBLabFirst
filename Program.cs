@@ -1,4 +1,6 @@
-﻿namespace DBFirstLab
+﻿using DBFirstLab.DbConsole;
+
+namespace DBFirstLab
 {
     class Program
     {
@@ -25,12 +27,10 @@
                 if (config != null)
                     CreateCsvTableAndAddToCollection(csvFile, dbTables, config);
             }
-
-            dbTables[0].MergeByColumn(dbTables[2], "Name", "BookName");
-            PrintBookAvailability(dbTables[0]);
+            
             foreach (var table in dbTables)
             {
-                table.Print();
+                Printer.Print(table);
                 Console.WriteLine();
             }
         }
