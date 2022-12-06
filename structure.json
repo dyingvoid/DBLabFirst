@@ -15,7 +15,7 @@
         "PersonId" : "System.Int32",
         "BookName" : "System.String",
         "Time" : "System.DateTime",
-        "Type" : "DBFirstLab.EnumOperation"
+        "Type" : "DBFirstLab.Core.EnumOperation"
     },
     "Empty.csv" : {
         "FirstName" : "System.String",

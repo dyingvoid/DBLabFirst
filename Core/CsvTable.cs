@@ -1,7 +1,6 @@
 ﻿using System.Collections;
-using DBFirstLab.Core;
 
-namespace DBFirstLab;
+namespace DBFirstLab.Core;
 
 public class CsvTable : IEnumerable<List<string?>>
 {
@@ -106,6 +105,10 @@ public class CsvTable : IEnumerable<List<string?>>
         try
         {
             var type = structure[name];
+            
+            if (type == null)
+                throw new NullReferenceException();
+            
             return type;
         }
         catch (Exception)

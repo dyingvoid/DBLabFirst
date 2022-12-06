@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace DBFirstLab.Core;
+﻿namespace DBFirstLab.Core;
 
 public class DbTest
 {
@@ -71,8 +69,16 @@ public class DbTest
         {
             if (type != typeof(String))
             {
-                var castGenericMethod = DbReflection.TryMakeGenericTypeCastMethodWithType(type);
-                DbReflection.TryCastToType(type, castGenericMethod, element);
+                try
+                {
+                    var castGenericMethod = DbReflection.TryMakeGenericTypeCastMethodWithType(type);
+                    DbReflection.TryCastToType(type, castGenericMethod, element);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Problem with data type checking.");
+                    throw;
+                }
             }
         }
     }

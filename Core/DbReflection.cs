@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+
 namespace DBFirstLab.Core;
 
 public static class DbReflection
@@ -21,12 +22,20 @@ public static class DbReflection
     
     public static MethodInfo ChooseGenericTypeCastMethodByTypeConstraints(Type type)
     {
-        if (type.IsValueType && !type.IsEnum)
-            return typeof(Extensions).GetMethod("ToTypeWithStructConstraint").MakeGenericMethod(type);
-        if (type.IsEnum)
-            return typeof(Extensions).GetMethod("ToTypeEnumConstraint").MakeGenericMethod(type);
+        try
+        {
+            if (type.IsValueType && !type.IsEnum)
+                return typeof(Extensions).GetMethod("ToTypeWithStructConstraint").MakeGenericMethod(type);
+            if (type.IsEnum)
+                return typeof(Extensions).GetMethod("ToTypeEnumConstraint").MakeGenericMethod(type);
 
-        return typeof(Extensions).GetMethod("ToTypeWithClassConstraint").MakeGenericMethod(type);
+            return typeof(Extensions).GetMethod("ToTypeWithClassConstraint").MakeGenericMethod(type);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Could not make generic method with type {type.Name}");
+            throw;
+        }
     }
     
     public static void TryCastToType(Type type, MethodInfo castGenericMethod, string? element)

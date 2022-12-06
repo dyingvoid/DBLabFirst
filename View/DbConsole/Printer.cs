@@ -1,4 +1,6 @@
-﻿namespace DBFirstLab.DbConsole;
+﻿using DBFirstLab.Core;
+
+namespace DBFirstLab.View.DbConsole;
 
 public static class Printer
 {

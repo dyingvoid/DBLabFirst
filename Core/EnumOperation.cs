@@ -1,4 +1,4 @@
-﻿namespace DBFirstLab;
+﻿namespace DBFirstLab.Core;
 
 public enum EnumOperation
 {
